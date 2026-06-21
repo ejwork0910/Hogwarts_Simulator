@@ -401,12 +401,61 @@
                 handleSetupSuccess();
             } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
                 try {
-                    await window.Capacitor.Plugins.Browser.open({ url: 'https://gemini.google.com' });
-                    window.Capacitor.Plugins.Browser.addListener('browserFinished', () => {
+                    const Browser = window.Capacitor.Plugins.Browser;
+                    
+                    // 1. 開啟 AI 對話視窗 (Gemini)
+                    await Browser.open({ url: 'https://gemini.google.com' });
+                    
+                    // 2. 這裡建立一個定時偵測機制（或者用你原本判定成功連線的邏輯）
+                    // 假設你的後端或憑證完成後，外殼會觸發 browserFinished
+                    Browser.addListener('browserFinished', () => {
+                        // 當視窗不論以何種方式關閉時（包含手動或程式觸發），進入下一步
                         handleSetupSuccess();
                     });
+
+                    // 3. 【核心新增】模擬或對接你的前端「判定成功連線」邏輯
+                    // 這裡建立一個自訂監聽，當你的遊戲前端判定成功連線時，呼叫此處
+                    window.addEventListener('message', async (event) => {
+                        if (event.data === 'AI_CONNECT_SUCCESS') {
+                            showCustomAlert("🔮 連線成功！", "已成功與 Gemini 織路者建立安全連結。", async () => {
+                                // 玩家按下確定後，一同關閉 AI 對話視窗
+                                await Browser.close(); 
+                            });
+                        }
+                    });
+
+                    // 測試用：為了讓你在沒有實裝真正連線判定前能測試，這裡寫一個模擬 8 秒後自動判定連線成功
+                    // 未來可以移除這段，改由你前端真正的連線成功 callback 去執行：
+                    // window.postMessage('AI_CONNECT_SUCCESS', '*');
+                    setTimeout(() => {
+                        window.postMessage('AI_CONNECT_SUCCESS', '*');
+                    }, 8000);
+
                 } catch (err) { alert("喚醒外部視窗失敗：" + err); }
             }
+        }
+
+        // 新增一個符合魔法風格的自訂提示視窗，避免原生 alert 造成的體驗中斷
+        function showCustomAlert(title, message, callback) {
+            const alertBg = document.createElement('div');
+            alertBg.style = "position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:10000; display:flex; justify-content:center; align-items:center; backdrop-filter:blur(5px); animation: fadeIn 0.3s ease;";
+            
+            alertBg.innerHTML = `
+                <div class="game-stage" style="display:block; width:85%; max-width:400px; text-align:center;">
+                    <div class="header-section">
+                        <h2 class="game-title" style="font-size:1.5rem;">${title}</h2>
+                        <div class="divider"><i>✦</i></div>
+                    </div>
+                    <p style="font-size:0.9rem; color:var(--color-parchment); margin-bottom:25px; line-height:1.6;">${message}</p>
+                    <button id="alert-confirm-btn" class="btn-submit"><i class="fa-solid fa-wand-sparkles"></i> 點擊踏入霍格華茲</button>
+                </div>
+            `;
+            document.body.appendChild(alertBg);
+            
+            document.getElementById('alert-confirm-btn').addEventListener('click', () => {
+                document.body.removeChild(alertBg);
+                if (callback) callback();
+            });
         }
 
         function handleSetupSuccess() {
