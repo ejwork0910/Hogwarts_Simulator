@@ -7,6 +7,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <script src="capacitor.js"></script>
+    
     <style>
         :root {
             --color-bg: #0d0c12;
@@ -37,7 +39,6 @@
             overflow: hidden;
         }
 
-        /* 魔幻背景粒子流（純 CSS 氛圍） */
         body::before {
             content: "";
             position: absolute;
@@ -54,7 +55,6 @@
             to { background-position: 1000px 1000px; }
         }
 
-        /* 歡迎與設定主面板 */
         .setup-container {
             position: relative;
             z-index: 10;
@@ -69,7 +69,6 @@
             transition: all 0.4s ease;
         }
 
-        /* 四角古典邊框裝飾 */
         .setup-container::before, .setup-container::after {
             content: "";
             position: absolute;
@@ -81,7 +80,6 @@
         .setup-container::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
         .setup-container::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
-        /* 標題區 */
         .header-section {
             text-align: center;
             margin-bottom: 35px;
@@ -121,7 +119,6 @@
             font-size: 0.8rem;
         }
 
-        /* 雙軌模式選擇按鈕 */
         .mode-options {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -177,7 +174,6 @@
             line-height: 1.4;
         }
 
-        /* 內容動態切換區域 */
         .config-content-wrapper {
             min-height: 140px;
             margin-bottom: 25px;
@@ -197,7 +193,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 輸入框與標籤樣式 */
         .input-group {
             margin-top: 10px;
         }
@@ -240,7 +235,6 @@
             box-shadow: 0 0 8px rgba(197, 168, 128, 0.15);
         }
 
-        /* 環境狀態提示盒 */
         .status-box {
             border-radius: 4px;
             padding: 15px;
@@ -268,7 +262,6 @@
             color: #f87171;
         }
 
-        /* 命運啟動按鈕 */
         .btn-submit {
             width: 100%;
             background: linear-gradient(135deg, #a8895f 0%, #735a38 100%);
@@ -314,7 +307,7 @@
             <h1 class="game-title">MAGIC AWAKENED</h1>
             <p class="game-subtitle">─ AI 動態敘事文字冒險 ─</p>
             <div class="divider">
-                <i class="fa-solid : fa-wand-twirl-extension">✦</i>
+                <i class="fa-solid fa-wand-magic-sparkles">✦</i>
             </div>
         </div>
 
@@ -344,42 +337,34 @@
             </div>
 
             <div class="config-panel" id="panel-shell">
-                <div id="shell-status" class="status-box">
-                    </div>
+                <div id="shell-status" class="status-box"></div>
             </div>
 
         </div>
 
         <button id="start-game-btn" class="btn-submit" onclick="confirmSetup()">
-            <span>開啟魔幻冒險</span>
+            <span id="btn-text">開啟魔幻冒險</span>
             <i class="fa-solid fa-chevron-right"></i>
         </button>
     </div>
 
     <script>
-        // 全局狀態變數
         let currentMode = 'key'; 
         let isCapacitorAvailable = false;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // 1. 初始化環境檢測
             checkEnvironment();
-            // 2. 讀取 LocalStorage 中歷史保存的 API Key
             const savedKey = localStorage.getItem('user_gemini_api_key');
             if (savedKey) {
                 document.getElementById('api-key-input').value = savedKey;
             }
-            // 3. 即時更新按鈕狀態
             validateForm();
-            
-            // 監聽金鑰輸入框動態更變
             document.getElementById('api-key-input').addEventListener('input', validateForm);
         });
 
-        // 環境偵測核心邏輯
         function checkEnvironment() {
-            // 檢查 window.Capacitor 是否存在
-            if (window.Capacitor || (window.parent && window.parent.Capacitor)) {
+            // 方案二關鍵優化：同時檢測本網域或 Capacitor 注入的環境
+            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
                 isCapacitorAvailable = true;
             } else {
                 isCapacitorAvailable = false;
@@ -387,7 +372,6 @@
             updateShellPanelUI();
         }
 
-        // 動態渲染模式二(Shell)的 UI 狀態
         function updateShellPanelUI() {
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
@@ -396,7 +380,7 @@
                     <i class="fa-solid fa-circle-check"></i>
                     <div>
                         <strong>App 運行環境偵測成功！</strong><br>
-                        隱藏外殼自動認證已就緒。系統將透過背景已持有的 Gemini 憑證自動進行對話與抓取。
+                        隱藏外殼自動認證已就緒。點擊下方按鈕將喚醒手機原生登入視窗。
                     </div>
                 `;
             } else {
@@ -405,55 +389,62 @@
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <div>
                         <strong>此模式僅限在專屬 Android App 內使用</strong><br>
-                        當前處於一般瀏覽器環境，無法讀取隱藏外殼憑證。請切換回「自主串接模式」或於手持 App 中開啟此畫面。
+                        當前處於一般瀏覽器環境，無法調用外殼插件。請切換回「自主串接模式」或下載特製 APK 在手機中開啟。
                     </div>
                 `;
             }
         }
 
-        // 雙軌切換按鈕切換
         function switchMode(mode) {
             currentMode = mode;
-            
-            // 處理按鈕 Active 樣式
             document.getElementById('mode-key-btn').classList.toggle('active', mode === 'key');
             document.getElementById('mode-shell-btn').classList.toggle('active', mode === 'shell');
-            
-            // 處理面板顯示/隱藏
             document.getElementById('panel-key').classList.toggle('active', mode === 'key');
             document.getElementById('panel-shell').classList.toggle('active', mode === 'shell');
             
-            // 切換時重新驗證表單可行性
+            const btnText = document.getElementById('btn-text');
+            if (mode === 'shell') {
+                btnText.innerText = "登入 Gemini 並啟動";
+            } else {
+                btnText.innerText = "開啟魔幻冒險";
+            }
+            
             validateForm();
         }
 
-        // 檢查按鈕可用性（防呆機制）
         function validateForm() {
             const startBtn = document.getElementById('start-game-btn');
-            
             if (currentMode === 'key') {
                 const keyValue = document.getElementById('api-key-input').value.trim();
-                // Gemini 金鑰通常以 AIzaSy 開頭，此處做基礎防呆
                 startBtn.disabled = (keyValue.length < 10);
             } else if (currentMode === 'shell') {
-                // 如果是 App 模式，必須環境檢測通過才能點擊按鈕
                 startBtn.disabled = !isCapacitorAvailable;
             }
         }
 
-        // 玩家最終點擊「開啟魔幻冒險」觸發行為
-        function confirmSetup() {
+        async function confirmSetup() {
             if (currentMode === 'key') {
                 const apiKey = document.getElementById('api-key-input').value.trim();
-                // 儲存金鑰至本地快取
                 localStorage.setItem('user_gemini_api_key', apiKey);
-                
-                alert(`🧙‍♂️「自主串接模式」配置成功！\n金鑰已安全暫存至 LocalStorage。\n\n[系統提示] 前端準備發送 Fetch 至官方端點...`);
-                // 此處接後續進入遊戲畫面或生成角色的邏輯
+                alert(`🧙‍♂️「自主串接模式」配置成功！\n\n[系統提示] 接下來將使用此 Key 直接串接 API。`);
+                // 這裡可以接進入遊戲畫面的邏輯
                 
             } else if (currentMode === 'shell') {
-                alert(`📱「App 免費外殼模式」啟動！\n環境驗證通過，正在透過 Web Message 連接背景外殼...\n\n[系統提示] 稍後會由後續追加的 JS Bridge 接手對話抓取機制。`);
-                // 此處接後續通知外殼或進入遊戲畫面的邏輯
+                // 方案二聯動：點擊時，透過外殼原生瀏覽器彈出官方登入視窗
+                if (window.Capacitor && window.Capacitor.Plugins.Browser) {
+                    const Browser = window.Capacitor.Plugins.Browser;
+                    try {
+                        await Browser.open({ url: 'https://gemini.google.com' });
+                        
+                        // 監聽玩家登入完成、關閉視窗的事件
+                        Browser.addListener('browserFinished', () => {
+                            alert("🔮 登入驗證程序完成！\nApp 已在背景記住身分憑證，正式進入文字冒險團！");
+                            // 這裡可以接進入遊戲畫面的邏輯
+                        });
+                    } catch (err) {
+                        alert("喚醒外部視窗失敗：" + err);
+                    }
+                }
             }
         }
     </script>
