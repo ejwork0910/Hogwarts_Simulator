@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>霍格華茲：AI 命運織路者</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="[https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap](https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap)" rel="stylesheet">
+    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
     
     <script src="capacitor.js"></script>
     
@@ -47,7 +47,7 @@
             content: "";
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(197,168,128,0.3)"/></svg>');
+            background: url('data:image/svg+xml;utf8,<svg xmlns="[http://www.w3.org/2000/svg](http://www.w3.org/2000/svg)" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(197,168,128,0.3)"/></svg>');
             opacity: 0.6;
             animation: bgShift 60s linear infinite;
             z-index: 0;
@@ -170,14 +170,12 @@
         .matrix-badge { display: inline-block; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); color: #fff; padding: 2px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; font-family: monospace; margin-bottom: 8px; }
         .matrix-text { font-size: 0.85rem; line-height: 1.5; color: var(--color-parchment); }
 
-        /* 屬性面板與線索面板樣式 */
         .stats-display-panel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; border: 1px solid rgba(197, 168, 128, 0.2); }
         .stat-card { text-align: center; }
         .stat-lbl { font-size: 0.75rem; color: #8c8275; }
         .stat-val { font-family: 'Cinzel', serif; font-size: 1.2rem; color: var(--color-gold-bright); font-weight: bold; }
         .clue-box { background: rgba(59, 45, 84, 0.2); border-left: 3px solid #7c5295; padding: 10px 12px; border-radius: 0 4px 4px 0; font-size: 0.82rem; margin-bottom: 15px; line-height: 1.4; }
 
-        /* ─── 階段五：全新小說敘事視窗樣式 ─── */
         .story-container { max-width: 700px; width: 94%; }
         .story-scroller { 
             height: 350px; 
@@ -481,14 +479,12 @@
         let worldLineConfig = { code: 'A1', timeline: 'A', npcScope: '1', narrativeLogic: '' };
         let purchaseRouteFlag = 'yes'; 
 
-        // 【新擴充】玩家角色數據物件
         let playerCharacter = {
             name: '',
             gender: 'male',
             bloodStatus: 'pure-blood',
             romancePreference: '',
             backgroundStory: '',
-            // 由 AI 首度通訊賦予的起始屬性
             charm: 10,
             willpower: 10,
             wisdom: 10,
@@ -571,7 +567,7 @@
                     localStorage.setItem('ai_connection_mode', 'shell');
 
                     await Browser.open({ 
-                        url: 'https://gemini.google.com',
+                        url: '[https://gemini.google.com](https://gemini.google.com)',
                         windowName: '_blank',
                         toolbarColor: '#13101a'
                     });
@@ -587,10 +583,16 @@
             }
         }
 
+        // ✅ 核心修復：當從故事視窗切換 AI 返回時，自動觸發重試重新讀取狀態
         function handleSetupSuccess() {
             document.getElementById('global-navbar').style.display = 'flex';
             if (prevGameState && prevGameState !== 'setup') {
-                changeStage(prevGameState);
+                const target = prevGameState;
+                changeStage(target);
+                if (target === 'story_view') {
+                    console.log("🔮 檢測到從設定頁面返回故事線，自動觸發魔力重新通訊...");
+                    executeAIOfficialConnection(); // 重新讀取與串接
+                }
             } else {
                 changeStage('menu');
             }
@@ -696,7 +698,7 @@
             if (val === 'yes') {
                 badge.innerText = "預計分裂路線：【路徑甲：一條龍體驗】";
                 routeDescText.innerHTML = `AI 將引導經歷三大經典里程碑：<br>
-                <strong>1. 斜角巷採買：</strong> 自由探索並挑選購買專專屬魔杖。<br>
+                <strong>1. 斜角巷採買：</strong> 自由探索並挑選購買專屬魔杖。<br>
                 <strong>2. 霍格華茲特快車：</strong> 月台出發，於火車包廂建立最初人際關係。<br>
                 <strong>3. 黑湖夜航：</strong> 跟隨海格乘船渡河，鋪陳入學震撼感。`;
             } else {
@@ -710,7 +712,6 @@
             changeStage('character_config');
         }
 
-        // 驗證步驟三並開始呼叫 AI 進行步驟四
         function validateAndStartStory() {
             const nameInput = document.getElementById('char-name').value.trim();
             if (!nameInput) {
@@ -718,7 +719,6 @@
                 return;
             }
 
-            // 讀取表單設定
             playerCharacter.name = nameInput;
             playerCharacter.gender = document.querySelector('input[name="char-gender"]:checked').value;
             playerCharacter.bloodStatus = document.querySelector('input[name="char-blood"]:checked').value;
@@ -728,20 +728,21 @@
             executeAIOfficialConnection();
         }
 
-        // 串接真實的 Gemini Webhook API (處理步驟四)
+        // 串接真實的 Gemini Webhook API 
         async function executeAIOfficialConnection() {
-            changeStage('story_view');
-            
+            // 先隱藏數值面板與線索，避免殘留上一次成功/失敗的舊狀態
+            document.getElementById('player-stats-panel').style.display = 'none';
+            document.getElementById('player-clue-panel').style.display = 'none';
+
             const routeName = (purchaseRouteFlag === 'yes') ? "路徑甲：斜角巷一條龍" : "路徑乙：極速大禮堂";
             document.getElementById('story-tag-badge').innerText = `矩陣：${worldLineConfig.code} ｜ 入學選定：${routeName}`;
             
             const displayArea = document.getElementById('story-text-display');
             const optionsArea = document.getElementById('action-options-area');
             
-            displayArea.innerHTML = "🔮 正在向霍格華茲校務處發送貓頭鷹通訊，魔力凝聚中，請稍候...";
+            displayArea.innerHTML = `<div style="text-align:center; padding: 20px;"><i class="fa-solid fa-wand-sparkles animation-spin" style="color:var(--color-gold); font-size:1.5rem; margin-bottom:10px;"></i><br>🔮 正在向霍格華茲校務處發送貓頭鷹通訊...<br><span style="font-size:0.8rem; color:#8c8275;">(目前連線模式: ${localStorage.getItem('ai_connection_mode') === 'shell' ? 'App 免費外殼' : '自主 Key 串接'})</span></div>`;
             optionsArea.innerHTML = "";
 
-            // 1. 組裝嚴格的 System Prompt 與核心任務
             const systemPrompt = `
                 你現在是一部哈利波特同人文字RPG遊戲的最高敘事與邏輯審查AI。
                 【目前世界線矩陣】：代碼 ${worldLineConfig.code} (${worldLineConfig.narrativeLogic})。
@@ -765,7 +766,7 @@
                 C. 史詩線索自動埋設：必須在回傳的 json 中，為其客製化生成一條與該極端背景對應的「第一層：校園線索(background_clue)」，將其 category 鎖定為 "player_background"，而 "summary" 必須寫成例如："在校園中隱約聽到高年級學生在竊語關於你家族血統的怪異傳聞。" 這種具備懸疑感、能自然演變成跨學年專屬劇期的文字。
 
                 【回傳格式要求】
-                你必須且只能回傳一個符合以下欄位格式的標準 JSON 格式字串，不要包含任何 markdown 語法外殼：
+                你必須且只能回傳一個符合以下欄位格式的標準 JSON 格式字串，絕對不要包含任何 markdown 語法外殼：
                 {
                    "novel_text": "（此處填寫你生成的入學通知信小說文本，若有極端背景請在此處完成合理化轉譯）",
                    "charm": 20,
@@ -779,14 +780,14 @@
                 }
             `;
 
-            // 2. 執行真實的 fetch 聯網發送
             const connectionMode = localStorage.getItem('ai_connection_mode') || 'key';
             let finalOutputJson = null;
 
             try {
                 if (connectionMode === 'key') {
                     const apiKey = localStorage.getItem('user_gemini_api_key');
-                    // 呼叫 Google 官方 Gemini 1.5 Flash 或是當前推薦的穩定端點，開啟 JSON 回傳模式
+                    if (!apiKey) throw new Error("未檢測到有效的 API 金鑰，請點擊右上角設定。");
+
                     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -798,35 +799,56 @@
                         })
                     });
 
+                    if (!response.ok) {
+                        const errData = await response.json().catch(() => ({}));
+                        throw new Error(errData?.error?.message || `HTTP 錯誤! 狀態碼: ${response.status}`);
+                    }
+
                     const resData = await response.json();
-                    const jsonText = resData.candidates[0].content.parts[0].text;
+                    let jsonText = resData.candidates[0].content.parts[0].text.trim();
+                    
+                    // ✅ 核心修復：使用正則表達式，強力清洗清除可能夾雜的 ```json 標籤外殼
+                    jsonText = jsonText.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
+                    
                     finalOutputJson = JSON.parse(jsonText);
                 } else {
-                    // App 免費外殼：在真實生產環境下，此處會呼叫前端橋接或後端反向代理 Webhook
-                    // 為了防呆演練，此處提供符合架構的 Mock 解析
+                    // App 免費外殼模式防呆模擬
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     finalOutputJson = mockParchmentResponse(playerCharacter.backgroundStory);
                 }
 
-                // 3. 解析並更新前端狀態變數
+                // 更新前端狀態變數
                 playerCharacter.charm = Math.min(30, Math.max(10, finalOutputJson.charm || 10));
                 playerCharacter.willpower = Math.min(30, Math.max(10, finalOutputJson.willpower || 10));
                 playerCharacter.wisdom = Math.min(30, Math.max(10, finalOutputJson.wisdom || 10));
                 playerCharacter.backgroundClue = finalOutputJson.background_clue || '平穩的開局背景。';
 
-                // 4. 動態渲染前端屬性與線索面板
                 renderAiAttributesAndClues();
-
-                // 5. 啟動故事本文打字機特效
                 startTypewriterStoryEffect(finalOutputJson.novel_text, finalOutputJson.choices);
 
             } catch (error) {
                 console.error("AI通訊時發生錯誤:", error);
-                displayArea.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-triangle-exclamation"></i> 傲羅防禦警告：與遠端魔力節點通訊失敗。<br>請檢查您的 API Key 狀態或返回主畫面重試。</span>`;
+                
+                // 調整失敗呈現，並提供直接點擊重試按鈕與返回切換按鈕
+                displayArea.innerHTML = `
+                    <div style="border: 1px dashed #ef4444; padding: 20px; border-radius:4px; background:rgba(239,68,68,0.05); margin-top:20px;">
+                        <span style="color:#f87171; font-weight:600;"><i class="fa-solid fa-triangle-exclamation"></i> 魔力通訊中斷 (錯誤詳情)</span>
+                        <p style="font-size:0.85rem; color:#b5a99a; margin-top:8px; font-family:monospace; background:#000; padding:8px; border-radius:3px;">${error.message}</p>
+                        <div style="margin-top:15px; font-size:0.85rem; color:#8c8275;">
+                            💡 建議排查方針：<br>
+                            1. 自主串接模式：請確認您的 API Key 是否正確或無額度限制。<br>
+                            2. 網路與節點：確認目前設備網際網路連線通暢。
+                        </div>
+                    </div>
+                `;
+                
+                optionsArea.innerHTML = `
+                    <button class="btn-submit" onclick="executeAIOfficialConnection()"><i class="fa-solid fa-arrow-rotate-right"></i> 重新凝聚魔力 (原地重試)</button>
+                    <button class="btn-submit btn-secondary" onclick="navToAIConfig()"><i class="fa-solid fa-robot"></i> 前往切換 AI / 更換金鑰</button>
+                `;
             }
         }
 
-        // 渲染屬性與線索
         function renderAiAttributesAndClues() {
             document.getElementById('stat-charm').innerText = playerCharacter.charm;
             document.getElementById('stat-willpower').innerText = playerCharacter.willpower;
@@ -839,7 +861,6 @@
             }
         }
 
-        // 故事打字機特效
         function startTypewriterStoryEffect(fullText, choicesArray) {
             const displayArea = document.getElementById('story-text-display');
             displayArea.innerHTML = "";
@@ -859,15 +880,12 @@
             typeWriter();
         }
 
-        // 渲染真實的分歧選項按鈕
         function renderRealChoices(choices) {
             const optionsArea = document.getElementById('action-options-area');
             optionsArea.innerHTML = "";
 
             if (!choices || choices.length === 0) {
-                choices = [
-                    { id: 1, text: "踏步向前，開啟命運。" }
-                ];
+                choices = [{ id: 1, text: "踏步向前，開啟命運。" }];
             }
 
             choices.forEach(ch => {
@@ -875,30 +893,23 @@
                 btn.className = "btn-choice";
                 btn.innerHTML = `<span class="choice-marker">⌥</span> ${ch.text}`;
                 btn.onclick = () => {
-                    alert(`🔮 您選擇了分歧代號：[${ch.id}]\n"${ch.text}"\n\n這項歷史印記已被前端捕獲！隨後我們將撰寫「第二章之後的持續發送邏輯」，讓 AI 連續編織故事！`);
+                    alert(`🔮 您選擇了分歧代號：[${ch.id}]\n"${ch.text}"\n\n這項印記已被捕獲！即將進入正式章節編織。`);
                 };
                 optionsArea.appendChild(btn);
             });
 
-            // 進行全自動進度暫存自動存檔
-            const saveData = {
-                worldLineConfig,
-                purchaseRouteFlag,
-                playerCharacter
-            };
+            const saveData = { worldLineConfig, purchaseRouteFlag, playerCharacter };
             localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
         }
 
-        // 針對 App 免費外殼或離線測試的防呆合理化 Mock 轉譯器
         function mockParchmentResponse(bgText) {
             const isOverpowered = bgText.includes("私生子") || bgText.includes("毀滅") || bgText.includes("鄧不利多") || bgText.includes("最強") || bgText.includes("神力");
-            
             let text = "";
             let clue = "";
             
             if (isOverpowered) {
-                text = `【霍格華茲魔法學校入學通知信】\n\n親愛的 ${playerCharacter.name} 生徒：\n\n我們注意到你在入學申請書的「其他背景」中提及了關於你身上流淌著古老不朽神力、或是與某位偉大校長有隱秘血親的傳聞。\n\n然而，副校長麥教授必須嚴肅地提醒你：霍格華茲拒絕採信任何未經魔法部證實的街頭謠言。經過檢測，你體內那些所謂的「驚天魔力」目前正處於極度混亂、狂暴且無法被任何一柄常規魔杖導引的『未覺醒狀態』。在校園內，你的初始魔力表現將與一般新生無異。請穿好素面長袍，於九月一日在王十字車站搭車。\n\n現任副校長 米奈娃·麥 謹上。`;
-                clue = "【家族秘密】高年級學生在長廊交頭接耳，低聲傳播著關於你血統與某位傳奇巫師的荒謬謠言，這讓你被斯萊特林或格蘭芬多盯上了。";
+                text = `【霍格華茲魔法學校入學通知信】\n\n親愛的 ${playerCharacter.name} 生徒：\n\n我們注意到你在檔案中提及了關於你身上流淌著不朽神力、或是與某位傳奇巫師有隱秘血親的傳聞。\n\n然而，副校長麥教授必須嚴肅提醒：霍格華茲拒絕採信未經魔法部證實的街頭謠言。經過檢測，你體內那些所謂的「驚天魔力」目前正處於極度混亂且無法導引的『未覺醒狀態』，表現將與一般新生無異。請穿好素面長袍，於九月一日在王十字車站搭車。\n\n現任副校長 米奈娃·麥 謹上。`;
+                clue = "【家族秘密】高年級學生在長廊交頭接耳，低聲傳播著關於你血統與某位傳奇巫師的荒謬謠言。";
             } else {
                 text = `【霍格華茲魔法學校入學通知信】\n\n親愛的 ${playerCharacter.name} 生徒：\n\n我們很高興通知你，你已經獲准在霍格華茲魔法學校就讀。隨信附上所需書籍與裝備名單。學校將於九月一日開學。我們將在等候你的貓頭鷹帶來回信。\n\n副校長 米奈娃·麥 謹上。`;
                 clue = "【踏入旅程】你平穩地接過了羊皮紙信件，微弱的魔法微光在你指尖閃爍。";
@@ -916,14 +927,7 @@
                 ];
             }
 
-            return {
-                novel_text: text,
-                charm: isOverpowered ? 14 : 22,
-                willpower: isOverpowered ? 28 : 15,
-                wisdom: isOverpowered ? 12 : 19,
-                background_clue: clue,
-                choices: choices
-            };
+            return { novel_text: text, charm: isOverpowered ? 14 : 22, willpower: isOverpowered ? 28 : 15, wisdom: isOverpowered ? 12 : 19, background_clue: clue, choices: choices };
         }
 
         function navToAIConfig() {
