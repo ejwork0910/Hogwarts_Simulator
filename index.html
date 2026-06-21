@@ -17,6 +17,7 @@
             --color-parchment: #dcd1b4;
             --color-panel-bg: rgba(23, 20, 31, 0.85);
             --color-border: #4a3f35;
+            --color-disabled: #554d42;
         }
 
         * {
@@ -34,6 +35,7 @@
             font-family: 'Noto Serif TC', serif;
             height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
@@ -55,7 +57,61 @@
             to { background-position: 1000px 1000px; }
         }
 
-        .setup-container {
+        /* 頂部全域狀態列 */
+        .global-navbar {
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            height: 55px;
+            background: rgba(13, 12, 18, 0.95);
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0,0,0,0.8);
+            display: none; /* 初始配置完才顯示，或全域顯示 */
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--color-gold-bright);
+            letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            font-size: 0.9rem;
+        }
+
+        .nav-item {
+            color: var(--color-parchment);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .nav-item:hover:not(.disabled) {
+            color: var(--color-gold-bright);
+        }
+        .nav-item.disabled {
+            color: var(--color-disabled);
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* 容器基本結構 */
+        .game-stage {
+            display: none;
             position: relative;
             z-index: 10;
             width: 90%;
@@ -66,10 +122,13 @@
             padding: 40px 30px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(197, 168, 128, 0.1);
             backdrop-filter: blur(12px);
-            transition: all 0.4s ease;
+            animation: fadeIn 0.5s ease forwards;
         }
 
-        .setup-container::before, .setup-container::after {
+        .game-stage.active { display: block; }
+
+        .setup-container::before, .setup-container::after,
+        .menu-container::before, .menu-container::after {
             content: "";
             position: absolute;
             width: 16px;
@@ -77,238 +136,70 @@
             border: 2px solid var(--color-gold);
             pointer-events: none;
         }
-        .setup-container::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
-        .setup-container::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+        .setup-container::before, .menu-container::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .setup-container::after, .menu-container::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
-        .header-section {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+        /* 標題與基礎樣式保持 */
+        .header-section { text-align: center; margin-bottom: 35px; }
+        .game-title { font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 700; color: var(--color-gold-bright); letter-spacing: 3px; text-shadow: 0 0 12px rgba(243, 229, 171, 0.4); margin-bottom: 8px; }
+        .game-subtitle { font-size: 0.95rem; color: #8c8275; letter-spacing: 1px; }
+        .divider { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
+        .divider::before, .divider::after { content: ""; height: 1px; width: 60px; background: linear-gradient(to right, transparent, var(--color-border), transparent); }
+        .divider i { color: var(--color-gold); margin: 0 15px; font-size: 0.8rem; }
 
-        .game-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--color-gold-bright);
-            letter-spacing: 3px;
-            text-shadow: 0 0 12px rgba(243, 229, 171, 0.4);
-            margin-bottom: 8px;
-        }
+        /* 模式切換排版 */
+        .mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
+        .mode-card { background: rgba(35, 30, 45, 0.6); border: 1px solid #3a322a; border-radius: 6px; padding: 20px 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .mode-card:hover { border-color: var(--color-gold); background: rgba(45, 38, 58, 0.8); transform: translateY(-2px); }
+        .mode-card.active { border-color: var(--color-gold-bright); background: rgba(197, 168, 128, 0.12); box-shadow: 0 0 15px rgba(197, 168, 128, 0.2); }
+        .mode-card i { font-size: 1.8rem; color: var(--color-gold); margin-bottom: 12px; }
+        .mode-title { font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; color: #fff; }
+        .mode-desc { font-size: 0.8rem; color: #9e9282; line-height: 1.4; }
 
-        .game-subtitle {
-            font-size: 0.95rem;
-            color: #8c8275;
-            letter-spacing: 1px;
-        }
+        .config-content-wrapper { min-height: 140px; margin-bottom: 25px; }
+        .config-panel { display: none; }
+        .config-panel.active { display: block; }
 
-        .divider {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        .divider::before, .divider::after {
-            content: "";
-            height: 1px;
-            width: 60px;
-            background: linear-gradient(to right, transparent, var(--color-border), transparent);
-        }
-        .divider i {
-            color: var(--color-gold);
-            margin: 0 15px;
-            font-size: 0.8rem;
-        }
+        .input-group { margin-top: 10px; }
+        .input-label { display: block; font-size: 0.85rem; color: var(--color-gold); margin-bottom: 8px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; }
+        .input-wrapper i { position: absolute; left: 12px; color: #615649; }
+        .magic-input { width: 100%; background: #16131c; border: 1px solid var(--color-border); border-radius: 4px; padding: 12px 12px 12px 38px; color: #fff; font-family: monospace; font-size: 0.95rem; outline: none; }
+        
+        .status-box { border-radius: 4px; padding: 15px; font-size: 0.88rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 12px; }
+        .status-success { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; }
+        .status-error { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #f87171; }
 
-        .mode-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 30px;
-        }
+        /* 按鈕基本樣式 */
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); border: 1px solid var(--color-gold); color: #fff; padding: 14px; font-size: 1.1rem; font-weight: 600; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; letter-spacing: 2px; margin-bottom: 12px;}
+        .btn-submit:hover:not(:disabled) { background: linear-gradient(135deg, #bfa47a 0%, #8c6e46 100%); box-shadow: 0 0 15px rgba(197, 168, 128, 0.4); }
+        .btn-submit:disabled { background: #2a2520; border-color: #443c35; color: #665f55; cursor: not-allowed; box-shadow: none; }
+        
+        .btn-secondary { background: rgba(30, 25, 35, 0.8); border: 1px solid var(--color-border); color: var(--color-parchment); }
+        .btn-secondary:hover:not(:disabled) { background: rgba(45, 38, 55, 0.9); border-color: var(--color-gold); color: #fff; }
 
-        .mode-card {
-            background: rgba(35, 30, 45, 0.6);
-            border: 1px solid #3a322a;
-            border-radius: 6px;
-            padding: 20px 15px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            position: relative;
-        }
-
-        .mode-card:hover {
-            border-color: var(--color-gold);
-            background: rgba(45, 38, 58, 0.8);
-            transform: translateY(-2px);
-        }
-
-        .mode-card.active {
-            border-color: var(--color-gold-bright);
-            background: rgba(197, 168, 128, 0.12);
-            box-shadow: 0 0 15px rgba(197, 168, 128, 0.2);
-        }
-
-        .mode-card i {
-            font-size: 1.8rem;
-            color: var(--color-gold);
-            margin-bottom: 12px;
-            transition: transform 0.3s ease;
-        }
-
-        .mode-card.active i {
-            color: var(--color-gold-bright);
-            transform: scale(1.1);
-        }
-
-        .mode-title {
-            font-weight: 600;
-            font-size: 1.05rem;
-            margin-bottom: 6px;
-            color: #fff;
-        }
-
-        .mode-desc {
-            font-size: 0.8rem;
-            color: #9e9282;
-            line-height: 1.4;
-        }
-
-        .config-content-wrapper {
-            min-height: 140px;
-            margin-bottom: 25px;
-        }
-
-        .config-panel {
-            display: none;
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        .config-panel.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .input-group {
-            margin-top: 10px;
-        }
-
-        .input-label {
-            display: block;
-            font-size: 0.85rem;
-            color: var(--color-gold);
-            margin-bottom: 8px;
-        }
-
-        .input-wrapper {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .input-wrapper i {
-            position: absolute;
-            left: 12px;
-            color: #615649;
-        }
-
-        .magic-input {
-            width: 100%;
-            background: #16131c;
-            border: 1px solid var(--color-border);
-            border-radius: 4px;
-            padding: 12px 12px 12px 38px;
-            color: #fff;
-            font-family: monospace;
-            font-size: 0.95rem;
-            letter-spacing: 1px;
-            outline: none;
-            transition: border-color 0.3s;
-        }
-
-        .magic-input:focus {
-            border-color: var(--color-gold);
-            box-shadow: 0 0 8px rgba(197, 168, 128, 0.15);
-        }
-
-        .status-box {
-            border-radius: 4px;
-            padding: 15px;
-            font-size: 0.88rem;
-            line-height: 1.5;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .status-box i {
-            font-size: 1.1rem;
-            margin-top: 2px;
-        }
-
-        .status-success {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid #10b981;
-            color: #34d399;
-        }
-
-        .status-error {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #f87171;
-        }
-
-        .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, #a8895f 0%, #735a38 100%);
-            border: 1px solid var(--color-gold);
-            color: #fff;
-            padding: 14px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 4px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-            transition: all 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-            letter-spacing: 2px;
-        }
-
-        .btn-submit:hover:not(:disabled) {
-            background: linear-gradient(135deg, #bfa47a 0%, #8c6e46 100%);
-            box-shadow: 0 0 15px rgba(197, 168, 128, 0.4);
-            transform: scale(1.01);
-        }
-
-        .btn-submit:active:not(:disabled) {
-            transform: scale(0.99);
-        }
-
-        .btn-submit:disabled {
-            background: #2a2520;
-            border-color: #443c35;
-            color: #665f55;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="setup-container">
+    <nav id="global-navbar" class="global-navbar">
+        <div class="nav-logo">
+            <i class="fa-solid fa-scroll"></i>
+            <span>MAGIC AWAKENED</span>
+        </div>
+        <div class="nav-links">
+            <a id="nav-home" class="nav-item disabled" onclick="navToMainMenu()"><i class="fa-solid fa-house"></i> 回到主畫面</a>
+            <a id="nav-load" class="nav-item" onclick="navLoadGame()"><i class="fa-solid fa-folder-open"></i> 讀取存檔</a>
+            <a id="nav-ai-config" class="nav-item" onclick="navToAIConfig()"><i class="fa-solid fa-robot"></i> 切換 AI</a>
+        </div>
+    </nav>
+
+    <div id="stage-setup" class="game-stage setup-container active">
         <div class="header-section">
             <h1 class="game-title">MAGIC AWAKENED</h1>
             <p class="game-subtitle">─ AI 動態敘事文字冒險 ─</p>
-            <div class="divider">
-                <i class="fa-solid fa-wand-magic-sparkles">✦</i>
-            </div>
+            <div class="divider"><i>✦</i></div>
         </div>
 
         <div class="mode-options">
@@ -325,7 +216,6 @@
         </div>
 
         <div class="config-content-wrapper">
-            
             <div class="config-panel active" id="panel-key">
                 <div class="input-group">
                     <label class="input-label" for="api-key-input">請輸入您的 Google Gemini API Key :</label>
@@ -335,11 +225,9 @@
                     </div>
                 </div>
             </div>
-
             <div class="config-panel" id="panel-shell">
                 <div id="shell-status" class="status-box"></div>
             </div>
-
         </div>
 
         <button id="start-game-btn" class="btn-submit" onclick="confirmSetup()">
@@ -348,9 +236,30 @@
         </button>
     </div>
 
+    <div id="stage-menu" class="game-stage menu-container">
+        <div class="header-section">
+            <h1 class="game-title">命運選單</h1>
+            <p class="game-subtitle">─ 檢測編織者的歷史刻印 ─</p>
+            <div class="divider"><i>✦</i></div>
+        </div>
+
+        <div style="margin-top: 40px;">
+            <button id="menu-continue-btn" class="btn-submit" onclick="continueGame()" style="display: none;">
+                <i class="fa-solid fa-hourglass-start"></i> 繼續冒險 (讀取存檔)
+            </button>
+            
+            <button id="menu-new-btn" class="btn-submit btn-secondary" onclick="handleNewGame()">
+                <i class="fa-solid fa-book-sparkles"></i> 開始新遊戲
+            </button>
+        </div>
+    </div>
+
     <script>
         let currentMode = 'key'; 
         let isCapacitorAvailable = false;
+        
+        // 模擬的存檔金鑰（用於未來完整性驗證）
+        const SAVE_KEY = 'rpg_game_save_data';
 
         document.addEventListener('DOMContentLoaded', () => {
             checkEnvironment();
@@ -360,10 +269,13 @@
             }
             validateForm();
             document.getElementById('api-key-input').addEventListener('input', validateForm);
+            
+            // 為了測試，我們塞入一個暫時的合法/損壞存檔測試按鈕在 Console 或手動模擬
+            // localStorage.setItem(SAVE_KEY, JSON.stringify({ hp: 100, level: 1 })); // 取消註解可測試有存檔
         });
 
+        // 環境偵測
         function checkEnvironment() {
-            // 方案二關鍵優化：同時檢測本網域或 Capacitor 注入的環境
             if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
                 isCapacitorAvailable = true;
             } else {
@@ -376,22 +288,10 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `
-                    <i class="fa-solid fa-circle-check"></i>
-                    <div>
-                        <strong>App 運行環境偵測成功！</strong><br>
-                        隱藏外殼自動認證已就緒。點擊下方按鈕將喚醒手機原生登入視窗。
-                    </div>
-                `;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 運行環境偵測成功！</strong><br>隱藏外殼自動認證已就緒。點擊下方按鈕將喚醒手機原生登入視窗。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
-                statusBox.innerHTML = `
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    <div>
-                        <strong>此模式僅限在專屬 Android App 內使用</strong><br>
-                        當前處於一般瀏覽器環境，無法調用外殼插件。請切換回「自主串接模式」或下載特製 APK 在手機中開啟。
-                    </div>
-                `;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼插件。請切換回「自主串接模式」或下載特製 APK 開啟。</div>`;
             }
         }
 
@@ -403,12 +303,7 @@
             document.getElementById('panel-shell').classList.toggle('active', mode === 'shell');
             
             const btnText = document.getElementById('btn-text');
-            if (mode === 'shell') {
-                btnText.innerText = "登入 Gemini 並啟動";
-            } else {
-                btnText.innerText = "開啟魔幻冒險";
-            }
-            
+            btnText.innerText = (mode === 'shell') ? "登入 Gemini 並啟動" : "開啟魔幻冒險";
             validateForm();
         }
 
@@ -422,29 +317,125 @@
             }
         }
 
+        // 核心流程：AI 連動確認後切換
         async function confirmSetup() {
             if (currentMode === 'key') {
                 const apiKey = document.getElementById('api-key-input').value.trim();
                 localStorage.setItem('user_gemini_api_key', apiKey);
-                alert(`🧙‍♂️「自主串接模式」配置成功！\n\n[系統提示] 接下來將使用此 Key 直接串接 API。`);
-                // 這裡可以接進入遊戲畫面的邏輯
-                
+                enterGameMenu();
             } else if (currentMode === 'shell') {
-                // 方案二聯動：點擊時，透過外殼原生瀏覽器彈出官方登入視窗
                 if (window.Capacitor && window.Capacitor.Plugins.Browser) {
                     const Browser = window.Capacitor.Plugins.Browser;
                     try {
                         await Browser.open({ url: 'https://gemini.google.com' });
-                        
-                        // 監聽玩家登入完成、關閉視窗的事件
                         Browser.addListener('browserFinished', () => {
-                            alert("🔮 登入驗證程序完成！\nApp 已在背景記住身分憑證，正式進入文字冒險團！");
-                            // 這裡可以接進入遊戲畫面的邏輯
+                            enterGameMenu();
                         });
                     } catch (err) {
                         alert("喚醒外部視窗失敗：" + err);
                     }
                 }
+            }
+        }
+
+        // ==========================================
+        // 核心優化：進入主功能選單與狀態列控制
+        // ==========================================
+        
+        function enterGameMenu() {
+            // 1. 顯示全域頂部狀態列
+            document.getElementById('global-navbar').style.display = 'flex';
+            
+            // 2. 切換場景至主選單
+            document.getElementById('stage-setup').classList.remove('active');
+            document.getElementById('stage-menu').classList.add('active');
+            
+            // 3. 更新全域狀態列按鈕高亮與暗淡
+            document.getElementById('nav-home').classList.add('disabled'); // 目前就在主畫面，使其暗淡
+            
+            // 4. 進行存檔完整性校驗與主畫面渲染
+            checkAndRenderSaveOptions();
+        }
+
+        // 存檔機制與完整性校驗
+        function checkAndRenderSaveOptions() {
+            const continueBtn = document.getElementById('menu-continue-btn');
+            const navLoad = document.getElementById('nav-load');
+            
+            const rawData = localStorage.getItem(SAVE_KEY);
+            let isSaveValid = false;
+
+            if (rawData) {
+                try {
+                    const parsed = JSON.parse(rawData);
+                    // 核心完整性校驗：判定是否有結構損壞 (此處假設存檔必須包含基本屬性，若為空或不符則視為損壞)
+                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
+                        isSaveValid = true;
+                    }
+                } catch (e) {
+                    isSaveValid = false; // JSON 解析失敗視為損壞
+                }
+            }
+
+            if (isSaveValid) {
+                // 有合法存檔：渲染繼續遊戲，且狀態列的「讀取存檔」因為已自動讀取，依照需求變更為不可點選的淡色
+                continueBtn.style.display = 'block';
+                navLoad.classList.add('disabled');
+            } else {
+                // 無存檔或損壞：僅保留新遊戲，狀態列「讀取存檔」維持可點選（允許未來手動外接載入）
+                continueBtn.style.display = 'none';
+                navLoad.classList.remove('disabled');
+                if (rawData) {
+                    console.warn("💥 偵測到損壞的存檔，系統已自動判定為無存檔。");
+                }
+            }
+        }
+
+        // 點擊「開始新遊戲」的覆蓋行為
+        function handleNewGame() {
+            const rawData = localStorage.getItem(SAVE_KEY);
+            
+            if (rawData) {
+                const confirmOverwrite = confirm("🔮 命運之書提示：\n檢測到既存的歷史刻印（舊存檔）。開始新遊戲將徹底抹除並覆蓋舊數據，是否確認重新編織你的命運？");
+                if (!confirmOverwrite) return;
+            }
+
+            // 徹底清除舊數據
+            localStorage.removeItem(SAVE_KEY);
+            alert("✨ 舊存檔已抹除，正在進入角色初始化步驟...");
+            
+            // 後續進入新遊戲畫面邏輯
+            // startNewGameInitialization(); 
+        }
+
+        // 點擊「繼續遊戲」
+        function continueGame() {
+            alert("📖 正在載入歷史刻印，重返冒險世界...");
+            // 後續載入存檔畫面邏輯
+        }
+
+        // 全域導航：回到主畫面
+        function navToMainMenu() {
+            document.getElementById('stage-setup').classList.remove('active');
+            // 如果有其他遊戲內場景，也在這關閉
+            document.getElementById('stage-menu').classList.add('active');
+            
+            document.getElementById('nav-home').classList.add('disabled');
+            checkAndRenderSaveOptions();
+        }
+
+        // 全域導航：讀取存檔（當前沒自動讀取到時可點選）
+        function navLoadGame() {
+            alert("🔍 開啟外部存檔載入羅盤... (此處未來可擴充導入 .json 檔案或雲端讀檔)");
+        }
+
+        // 全域導航：切換 AI
+        function navToAIConfig() {
+            const leaveConfirm = confirm("🤖 是否要暫時返回 AI 織路模組設定介面？\n此操作不會影響當前遊戲進行。");
+            if (leaveConfirm) {
+                document.getElementById('stage-menu').classList.remove('active');
+                document.getElementById('stage-setup').classList.add('active');
+                document.getElementById('nav-home').classList.remove('disabled'); // 離開主畫面了，主畫面按鈕亮起
             }
         }
     </script>
