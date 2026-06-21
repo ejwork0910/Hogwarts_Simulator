@@ -396,18 +396,50 @@
         }
 
         async function confirmSetup() {
-            if (currentMode === 'key') {
-                localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
-                handleSetupSuccess();
-            } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
-                try {
-                    await window.Capacitor.Plugins.Browser.open({ url: 'https://gemini.google.com' });
-                    window.Capacitor.Plugins.Browser.addListener('browserFinished', () => {
-                        handleSetupSuccess();
-                    });
-                } catch (err) { alert("喚醒外部視窗失敗：" + err); }
-            }
+    // 模式 A：玩家選擇自行填入 Gemini API Key (正式遊玩串接，不跳外部網頁)
+    if (currentMode === 'key') {
+        const apiKey = document.getElementById('api-key-input').value.trim();
+        if (!apiKey) {
+            alert("請輸入有效的 API Key！");
+            return;
         }
+        localStorage.setItem('user_gemini_api_key', apiKey);
+        localStorage.setItem('ai_connection_mode', 'key'); // 記錄當前使用的是 Key 模式
+        handleSetupSuccess();
+    } 
+    
+    // 模式 B：玩家選擇使用「免 Key 外殼 APP 認證方案」 (需要拉起網頁 Cookie 憑證)
+    else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
+        try {
+            const Browser = window.Capacitor.Plugins.Browser;
+            
+            // 【100% 擋不住的預防針】
+            // 不論是第一次登入，還是玩到一半從選單進來「切換帳號」，只要打開網頁前，一定跳出這個系統級提示
+            alert("🔮 【AI 魔法外殼：節點同步指引】\n\n接下來將為您開啟 AI 驗證視窗。\n\n當您在畫面中看見 Gemini 對話框（例如顯示：XX，今天好嗎？）時，代表外殼已在背景完成同步！\n\n請直接點擊左上角的 [❌] 或手機返回鍵斬斷絲線，即可重返魔法校園編織命運。");
+
+            // 儲存當前使用的是 Shell 外殼模式
+            localStorage.setItem('ai_connection_mode', 'shell');
+
+            // 開啟 Gemini 官方網頁（保護背景遊戲進度，在 Android 上會是 100% 全螢幕）
+            await Browser.open({ 
+                url: 'https://gemini.google.com',
+                windowName: '_blank',
+                toolbarColor: '#13101a' // 設定與你遊戲風格相近的暗色系網址列
+            });
+            
+            // 監聽關閉事件：不論玩家在裡面弄了多久、換了幾個帳號，只要最後按下左上角 [❌] 回來
+            Browser.addListener('browserFinished', () => {
+                // 安靜且優雅地推進遊戲，不跳任何多餘的二次確認 alert 窗
+                handleSetupSuccess();
+            });
+
+        } catch (err) { 
+            alert("喚醒外部驗證視窗失敗：" + err); 
+        }
+    } else {
+        alert("偵測不到環境，請在手機 App 內執行此功能！");
+    }
+}
 
         function handleSetupSuccess() {
             document.getElementById('global-navbar').style.display = 'flex';
