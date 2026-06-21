@@ -403,37 +403,21 @@
         try {
             const Browser = window.Capacitor.Plugins.Browser;
             
-            // 1. 在彈出視窗前，動態在我們「遊戲網頁」的最頂端塞入一個高顯眼的常駐提示列
-            // 這樣當 AI 視窗跳出來時（非全螢幕），這條提示會剛好露在螢幕最上方！
-            let topHint = document.createElement('div');
-            topHint.id = "shell-top-hint";
-            topHint.style = "position:fixed; top:0; left:0; width:100%; height:15vh; background:#1e1b26; color:#c5a880; border-bottom:2px solid #4a3f35; z-index:999999; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:10px; font-size:0.9rem; line-height:1.4;";
-            topHint.innerHTML = "<div><i class='fa-solid fa-wand-sparkles' style='color:#f3e5ab;'></i> <strong>魔法外殼認證中</strong></div><div style='font-size:0.75rem; color:#9e9282; margin-top:4px;'>請在下方視窗登入 Gemini。完成後【點擊此處】或【向下滑動】即可返回遊戲</div>";
-            document.body.appendChild(topHint);
-
-            // 點擊提示列也可以主動幫玩家關閉視窗，雙重保險
-            topHint.onclick = async () => {
-                await Browser.close();
-            };
-
-            // 2. 開啟 Gemini 官方網頁
-            // 透過配置 toolbarColor 與 presentationStyle，限制它不要吞掉整個螢幕
+            // 1. 直接開啟 Gemini 官方網頁
+            // 我們利用 title 參數，把提示直接注入 Android 系統的最頂端標題列
             await Browser.open({ 
                 url: 'https://gemini.google.com',
                 windowName: '_blank',
-                // 讓視窗具備質感的外殼色
-                toolbarColor: '#13101a', 
-                // 關鍵：在 iOS/Android 上嘗試以彈窗/抽屜型態顯現，允許底層內容露出
-                presentationStyle: 'popover' 
+                // 這裡指定 Toolbar 的顏色（可以改成你的魔法學院黑金色系，例如 #1a1625）
+                toolbarColor: '#1a1625', 
+                // 【關鍵】直接讓原生視窗的標題顯示這段引導文字
+                // 這樣不論網頁怎麼載入，最上方都會永遠固定顯示這行字！
+                title: "🔮 登入完成後，請點擊左側 [X] 返回遊戲"
             });
             
-            // 3. 監聽關閉事件（玩家向下滑動關閉、按 X 關閉、或點擊上方提示列關閉）
+            // 2. 監聽玩家看到頂部標題、操作完畢、按下左上角 ❌（或手機返回鍵）回來的事件
             Browser.addListener('browserFinished', () => {
-                // 移除常駐提示列
-                const hintEl = document.getElementById('shell-top-hint');
-                if (hintEl) hintEl.remove();
-                
-                // 無縫進入遊戲
+                // 無縫、安全地保留背景進度，直接進入遊戲下一階段
                 handleSetupSuccess();
             });
 
