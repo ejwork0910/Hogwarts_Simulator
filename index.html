@@ -147,6 +147,39 @@
         .btn-secondary { background: rgba(30, 25, 35, 0.8); border: 1px solid var(--color-border); color: var(--color-parchment); }
         .btn-secondary:hover:not(:disabled) { background: rgba(45, 38, 55, 0.9); border-color: var(--color-gold); color: #fff; }
 
+        /* ── 新增：引導切換懸浮視窗樣式 ── */
+        .magic-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 4, 8, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        .magic-modal-overlay.active { display: flex; }
+        .magic-modal {
+            width: 88%;
+            max-width: 420px;
+            background: #1a1625;
+            border: 2px solid var(--color-gold);
+            border-radius: 6px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9), 0 0 20px rgba(197, 168, 128, 0.15);
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-icon { font-size: 2.2rem; color: var(--color-gold-bright); margin-bottom: 15px; animation: pulse 2s infinite; }
+        .modal-title { font-size: 1.15rem; font-weight: 600; color: #fff; margin-bottom: 10px; letter-spacing: 1px; }
+        .modal-body { font-size: 0.88rem; color: #bcae9b; line-height: 1.6; margin-bottom: 22px; text-align: left; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 4px; border: 1px solid #2e263a; }
+        
+        @keyframes pulse { 
+            0% { transform: scale(1); opacity: 0.9; } 
+            50% { transform: scale(1.06); opacity: 1; text-shadow: 0 0 15px rgba(243, 229, 171, 0.6); } 
+            100% { transform: scale(1); opacity: 0.9; } 
+        }
+
         .config-select-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .select-group { background: rgba(20, 15, 25, 0.6); border: 1px solid var(--color-border); padding: 15px; border-radius: 4px; }
         .select-title { font-size: 0.9rem; color: var(--color-gold-bright); margin-bottom: 10px; font-weight: 600; }
@@ -174,6 +207,21 @@
             <a id="nav-ai-config" class="nav-item" onclick="navToAIConfig()"><i class="fa-solid fa-robot"></i> 切換 AI</a>
         </div>
     </nav>
+
+    <div id="magic-redirect-modal" class="magic-modal-overlay">
+        <div class="magic-modal">
+            <div class="modal-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+            <div class="modal-title">魔力連結已成功建立</div>
+            <div class="modal-body">
+                🔮 <strong>系統提示：</strong><br>
+                外部 Gemini 認證分頁已於背景/上層開啟。<br><br>
+                如果您已在該視窗完成 Google 帳號登入與授權，請直接點擊下方按鈕。系統將<strong>自動關閉認證視窗</strong>並帶您返回魔法世界！
+            </div>
+            <button class="btn-submit" onclick="forceCloseAIWindowAndResume()" style="margin-bottom: 0;">
+                <i class="fa-solid fa-circle-xmark"></i> 關閉驗證並返回遊戲
+            </button>
+        </div>
+    </div>
 
     <div id="stage-setup" class="game-stage setup-container active">
         <div class="header-section">
@@ -287,7 +335,7 @@
 
     <div id="stage-purchase-config" class="game-stage">
         <div class="header-section">
-            <h1 class="game-title">採買抉擇</h1>
+            <h1 class="game-title">採買抉難</h1>
             <p class="game-subtitle">─ 決定進入入學前夕的敘事深度 ─</p>
             <div class="divider"><i>✦</i></div>
         </div>
@@ -360,7 +408,7 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將喚醒帶有控制條的登入視窗。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>自動外殼代碼已準備就緒，點擊下方將立即對接。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
                 statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼憑證。請使用「自主串接模式」。</div>`;
@@ -389,24 +437,35 @@
         async function confirmSetup() {
             if (currentMode === 'key') {
                 localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
-                alert("✨ API 金鑰設定成功，魔力連結已建立！");
                 handleSetupSuccess();
             } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
                 try {
-                    // 【關鍵修正】：移除後置定時器與後置彈窗。
-                    // 直接開啟自帶控制條/關閉按鈕的內嵌視窗，當玩家在對話視窗點擊「Done」或「關閉」時，立刻直覺切換回遊戲。
+                    // 1. 開啟外部 AI 視窗
                     await window.Capacitor.Plugins.Browser.open({ 
                         url: 'https://gemini.google.com',
-                        windowName: '_blank',
-                        presentationStyle: 'popover' // 在 iOS/Android 強制開啟具備完成/切換按鈕的視窗
+                        windowName: '_blank'
                     });
                     
-                    // 只要視窗一開啟，便默認完成對齊，直接進入成功狀態，不使用任何干擾體驗的 Alert
-                    handleSetupSuccess();
+                    // 2. 【關鍵改動】：立刻秀出遊戲內引導懸浮窗！告訴玩家完成後點擊它
+                    document.getElementById('magic-redirect-modal').classList.add('active');
                 } catch (err) { 
                     alert("喚醒外部視窗失敗：" + err); 
                 }
             }
+        }
+
+        // 3. 【新功能】：點擊懸浮視窗按鈕時，直接強制「幫玩家關掉 AI 視窗」並進入遊戲
+        async function forceCloseAIWindowAndResume() {
+            if (window.Capacitor?.Plugins?.Browser) {
+                try {
+                    // 主動將疊在上層的手機外殼網頁關閉
+                    await window.Capacitor.Plugins.Browser.close();
+                } catch(e) { console.log("視窗關閉異常或已被手動關閉"); }
+            }
+            // 隱藏懸浮窗
+            document.getElementById('magic-redirect-modal').classList.remove('active');
+            // 流暢前往下一畫面
+            handleSetupSuccess();
         }
 
         function handleSetupSuccess() {
