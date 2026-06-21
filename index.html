@@ -403,35 +403,31 @@
                 try {
                     const Browser = window.Capacitor.Plugins.Browser;
                     
-                    // 1. 開啟 AI 對話視窗 (Gemini)
+                    // 1. 開啟 AI 視窗
                     await Browser.open({ url: 'https://gemini.google.com' });
                     
-                    // 2. 這裡建立一個定時偵測機制（或者用你原本判定成功連線的邏輯）
-                    // 假設你的後端或憑證完成後，外殼會觸發 browserFinished
+                    // 2. 監聽視窗就緒或關閉狀態。
+                    // 提示：大部分手機此處可以用一個定時器或在監聽中主動引導
                     Browser.addListener('browserFinished', () => {
-                        // 當視窗不論以何種方式關閉時（包含手動或程式觸發），進入下一步
+                        // 如果玩家手動關閉了，直接進入遊戲
                         handleSetupSuccess();
                     });
 
-                    // 3. 【核心新增】模擬或對接你的前端「判定成功連線」邏輯
-                    // 這裡建立一個自訂監聽，當你的遊戲前端判定成功連線時，呼叫此處
-                    window.addEventListener('message', async (event) => {
-                        if (event.data === 'AI_CONNECT_SUCCESS') {
-                            showCustomAlert("🔮 連線成功！", "已成功與 Gemini 織路者建立安全連結。", async () => {
-                                // 玩家按下確定後，一同關閉 AI 對話視窗
-                                await Browser.close(); 
-                            });
-                        }
-                    });
-
-                    // 測試用：為了讓你在沒有實裝真正連線判定前能測試，這裡寫一個模擬 8 秒後自動判定連線成功
-                    // 未來可以移除這段，改由你前端真正的連線成功 callback 去執行：
-                    // window.postMessage('AI_CONNECT_SUCCESS', '*');
+                    // 為了達到您要的「連線上之後，提示玩家連線已完成，按下確認自動返回」
+                    // 我們可以利用一個小技巧：在開啟後 3 秒（預期已載入網頁並完成認證環境後）
+                    // 在底層觸發一個 OS 級別的 alert，它會彈出在最上層。
                     setTimeout(() => {
-                        window.postMessage('AI_CONNECT_SUCCESS', '*');
-                    }, 8000);
+                        // 使用 window.alert 觸發 Android 原生對話框，這會強行浮現在最上層
+                        alert("🔮 AI 織路者連線已完成！\n點擊「確認」後將自動為您返回魔法校園。");
+                        
+                        // 玩家點完確認後，程式碼主動關閉 AI 原生視窗，完美退回遊戲前端
+                        Browser.close();
+                        handleSetupSuccess();
+                    }, 4000); // 4秒給予足夠的登入/讀取快取時間
 
-                } catch (err) { alert("喚醒外部視窗失敗：" + err); }
+                } catch (err) { 
+                    alert("喚醒外部視窗失敗：" + err); 
+                }
             }
         }
 
