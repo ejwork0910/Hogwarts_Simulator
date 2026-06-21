@@ -40,6 +40,8 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
+            /* 優化：預留頂部 Navbar 高度，防止內容被遮擋 */
+            padding-top: 60px; 
         }
 
         body::before {
@@ -58,7 +60,7 @@
             to { background-position: 1000px 1000px; }
         }
 
-        /* 頂部全域狀態列 */
+        /* 頂部全域狀態列優化（僅留兩個按鈕區塊） */
         .global-navbar {
             position: fixed;
             top: 0; left: 0; width: 100%;
@@ -117,13 +119,13 @@
 
         /* 標題與基礎樣式 */
         .header-section { text-align: center; margin-bottom: 25px; }
-        .game-title { font-family: 'Cinzel', serif; font-size: 2rem; font-weight: 700; color: var(--color-gold-bright); letter-spacing: 3px; text-shadow: 0 0 12px rgba(243, 229, 171, 0.4); margin-bottom: 6px; }
+        .game-title { font-family: 'Cinzel', serif; font-size: 1.9rem; font-weight: 700; color: var(--color-gold-bright); letter-spacing: 3px; text-shadow: 0 0 12px rgba(243, 229, 171, 0.4); margin-bottom: 6px; }
         .game-subtitle { font-size: 0.9rem; color: #8c8275; letter-spacing: 1px; }
         .divider { display: flex; align-items: center; justify-content: center; margin: 15px 0; }
         .divider::before, .divider::after { content: ""; height: 1px; width: 60px; background: linear-gradient(to right, transparent, var(--color-border), transparent); }
         .divider i { color: var(--color-gold); margin: 0 15px; font-size: 0.8rem; }
 
-        /* 模式選擇 */
+        /* 模式與自訂選擇區域 */
         .mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 25px; }
         .mode-card { background: rgba(35, 30, 45, 0.6); border: 1px solid #3a322a; border-radius: 6px; padding: 18px 12px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
         .mode-card:hover { border-color: var(--color-gold); background: rgba(45, 38, 58, 0.8); }
@@ -136,8 +138,6 @@
         .config-panel { display: none; }
         .config-panel.active { display: block; }
 
-        .input-group { margin-top: 5px; }
-        .input-label { display: block; font-size: 0.85rem; color: var(--color-gold); margin-bottom: 8px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper i { position: absolute; left: 12px; color: #615649; }
         .magic-input { width: 100%; background: #16131c; border: 1px solid var(--color-border); border-radius: 4px; padding: 12px 12px 12px 38px; color: #fff; font-family: monospace; font-size: 0.95rem; outline: none; }
@@ -153,45 +153,18 @@
         .btn-secondary { background: rgba(30, 25, 35, 0.8); border: 1px solid var(--color-border); color: var(--color-parchment); }
         .btn-secondary:hover:not(:disabled) { background: rgba(45, 38, 55, 0.9); border-color: var(--color-gold); color: #fff; }
 
-        /* 世界線自訂選擇區域 */
-        .config-select-section {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        .select-group {
-            background: rgba(20, 15, 25, 0.6);
-            border: 1px solid var(--color-border);
-            padding: 12px;
-            border-radius: 4px;
-        }
-        .select-title { font-size: 0.9rem; color: var(--color-gold-bright); margin-bottom: 8px; font-weight: 600; }
-        .radio-options { display: flex; flex-direction: column; gap: 8px; }
+        /* 選擇元件排版 */
+        .config-select-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+        .select-group { background: rgba(20, 15, 25, 0.6); border: 1px solid var(--color-border); padding: 15px; border-radius: 4px; }
+        .select-title { font-size: 0.9rem; color: var(--color-gold-bright); margin-bottom: 10px; font-weight: 600; }
+        .radio-options { display: flex; flex-direction: column; gap: 10px; }
         .radio-label { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; cursor: pointer; color: #b5a99a; transition: color 0.2s; }
         .radio-label:hover { color: #fff; }
         .radio-label input { accent-color: var(--color-gold); }
 
-        /* 交叉矩陣動態結果顯示盒 */
-        .matrix-result-box {
-            background: rgba(40, 32, 54, 0.4);
-            border: 1px dashed var(--color-gold);
-            border-radius: 4px;
-            padding: 15px;
-            margin-bottom: 20px;
-            min-height: 80px;
-        }
-        .matrix-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #a8895f 0%, #735a38 100%);
-            color: #fff;
-            padding: 2px 10px;
-            border-radius: 3px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            font-family: monospace;
-            margin-bottom: 8px;
-        }
+        /* 動態說明盒 */
+        .matrix-result-box { background: rgba(40, 32, 54, 0.4); border: 1px dashed var(--color-gold); border-radius: 4px; padding: 15px; margin-bottom: 20px; }
+        .matrix-badge { display: inline-block; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); color: #fff; padding: 2px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; font-family: monospace; margin-bottom: 8px; }
         .matrix-text { font-size: 0.85rem; line-height: 1.5; color: var(--color-parchment); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
@@ -205,8 +178,7 @@
             <span>HOGWARTS LIFE</span>
         </div>
         <div class="nav-links">
-            <a id="nav-home" class="nav-item disabled" onclick="navToMainMenu()"><i class="fa-solid fa-house"></i> 回到主畫面</a>
-            <a id="nav-load" class="nav-item" onclick="navLoadGame()"><i class="fa-solid fa-folder-open"></i> 讀取存檔</a>
+            <a id="nav-dynamic-action" class="nav-item" onclick="handleNavbarAction()"><i class="fa-solid fa-folder-open"></i> 讀取存檔</a>
             <a id="nav-ai-config" class="nav-item" onclick="navToAIConfig()"><i class="fa-solid fa-robot"></i> 切換 AI</a>
         </div>
     </nav>
@@ -267,8 +239,8 @@
 
     <div id="stage-world-config" class="game-stage">
         <div class="header-section">
-            <h1 class="game-title">分流儀式：世界線編織</h1>
-            <p class="game-subtitle">─ 設定開局敘事基礎矩陣（設定後即刻鎖定，不可逆） ─</p>
+            <h1 class="game-title">世界線編織</h1>
+            <p class="game-subtitle">─ 設定開局敘事基礎矩陣 ─</p>
             <div class="divider"><i>✦</i></div>
         </div>
 
@@ -278,11 +250,11 @@
                 <div class="radio-options">
                     <label class="radio-label">
                         <input type="radio" name="timeline-mode" value="A" checked onchange="updateWorldMatrix()">
-                        <span><strong>模式 A：包含原著主線事件</strong> (隨歷史軌跡推進，將玩家捲入重大風暴)</span>
+                        <span><strong>模式 A：包含原著主線事件</strong> (隨歷史軌跡推進玩家將捲入風暴)</span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="timeline-mode" value="B" onchange="updateWorldMatrix()">
-                        <span><strong>模式 B：純 AI 生成原創事件</strong> (原著重大事件不發生，享受純粹平行時空)</span>
+                        <span><strong>模式 B：純 AI 生成原創事件</strong> (原著重大事件不發生，享受平行時空)</span>
                     </label>
                 </div>
             </div>
@@ -292,7 +264,7 @@
                 <div class="radio-options">
                     <label class="radio-label">
                         <input type="radio" name="npc-mode" value="1" checked onchange="updateWorldMatrix()">
-                        <span><strong>模式 1：完全比照原著角色</strong> (哈利、妙麗等經典原著人物)</span>
+                        <span><strong>模式 1：完全比照原著角色</strong> (哈利、妙麗等經典人物)</span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="npc-mode" value="2" onchange="updateWorldMatrix()">
@@ -300,7 +272,7 @@
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="npc-mode" value="3" onchange="updateWorldMatrix()">
-                        <span><strong>模式 3：僅教職員原著，學生全原創</strong> (教授不變，但同學全是陌生面孔)</span>
+                        <span><strong>模式 3：僅教職員原著，學生全原創</strong> (教授不變，但同學全是新面孔)</span>
                     </label>
                     <label class="radio-label">
                         <input type="radio" name="npc-mode" value="4" onchange="updateWorldMatrix()">
@@ -315,30 +287,58 @@
             <div id="matrix-desc-text" class="matrix-text">載入中...</div>
         </div>
 
-        <button class="btn-submit" onclick="lockAndStartWorld()">
-            <span>鎖定世界線，踏上九又四分之三月台</span>
+        <button class="btn-submit" onclick="saveWorldConfigAndNext()">
+            <span>鎖定世界線，前進下一步驟</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <div id="stage-purchase-config" class="game-stage">
+        <div class="header-section">
+            <h1 class="game-title">採買抉擇</h1>
+            <p class="game-subtitle">─ 決定進入入學前夕的敘事深度 ─</p>
+            <div class="divider"><i>✦</i></div>
+        </div>
+
+        <div class="config-select-section">
+            <div class="select-group">
+                <div class="select-title"><i class="fa-solid fa-bag-shopping"></i> 是否要完整體驗斜角巷採買與旅途？</div>
+                <div class="radio-options">
+                    <label class="radio-label">
+                        <input type="radio" name="purchase-mode" value="yes" checked onchange="updatePurchaseRouteText()">
+                        <span><strong>是，我想體驗一條龍入學</strong> (斜角巷魔杖探索、霍格華茲特快車、黑湖夜航)</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="purchase-mode" value="no" onchange="updatePurchaseRouteText()">
+                        <span><strong>否，我想直接極速快轉</strong> (跳過斜角巷與火車，直接黑幕開局站在大禮堂門前)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="matrix-result-box">
+            <div id="route-badge" class="matrix-badge" style="background: linear-gradient(135deg, #3b2d54 0%, #16131c 100%); border: 1px solid var(--color-gold);">預計分裂路線：路徑甲</div>
+            <div id="route-desc-text" class="matrix-text">載入中...</div>
+        </div>
+
+        <button class="btn-submit" onclick="lockPurchaseConfigAndStart()">
+            <span>儲存入學標籤，準備召喚 AI 織路</span>
             <i class="fa-solid fa-wand-sparkles"></i>
         </button>
     </div>
 
     <script>
-        // 全域狀態機
         let currentMode = 'key'; 
         let isCapacitorAvailable = false;
-        let gameState = 'setup'; // 追蹤當前頁面狀態：setup | menu | world_config
-        let prevGameState = 'setup'; // 用於切換 AI 時記憶返回
+        let gameState = 'setup'; // setup | menu | world_config | purchase_config
+        let prevGameState = 'setup'; 
         
-        // 核心玩家選擇記憶庫 (未來呼叫 AI 或是寫入存檔的核心數據)
-        let worldLineConfig = {
-            code: 'A1',
-            timeline: 'A',
-            npcScope: '1',
-            narrativeLogic: ''
-        };
+        // 全域記憶庫庫（準備給未來存檔或 AI Prompt 的最高規則變數）
+        let worldLineConfig = { code: 'A1', timeline: 'A', npcScope: '1', narrativeLogic: '' };
+        let purchaseRouteFlag = 'yes'; // 'yes' (路徑甲) 或 'no' (路徑乙)
 
         const SAVE_KEY = 'rpg_game_save_data';
 
-        // 世界線交叉組合矩陣說明數據
         const matrixMatrix = {
             'A1': "原著主線由原著角色依好感度級距自然將玩家捲入，可能隨機遭遇校園異象與暗線。",
             'A2': "原著主線由原著角色依好感度級距自然將玩家捲入，可能隨機遭遇校園異象與暗線。",
@@ -357,6 +357,7 @@
             validateForm();
             document.getElementById('api-key-input').addEventListener('input', validateForm);
             updateWorldMatrix();
+            updatePurchaseRouteText();
         });
 
         function checkEnvironment() {
@@ -368,10 +369,10 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將喚醒登入視窗。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼認證已就緒。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼憑證。請使用「自主串接模式」。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong></div>`;
             }
         }
 
@@ -394,7 +395,6 @@
             }
         }
 
-        // 核心設定確認：切換畫面
         async function confirmSetup() {
             if (currentMode === 'key') {
                 localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
@@ -409,11 +409,8 @@
             }
         }
 
-        // 成功認證後的跳轉（新增：記憶返回邏輯）
         function handleSetupSuccess() {
             document.getElementById('global-navbar').style.display = 'flex';
-            
-            // 如果是玩到一半從全域過來切換 AI 的，切換完直接帶他回到原本中斷的畫面
             if (prevGameState && prevGameState !== 'setup') {
                 changeStage(prevGameState);
             } else {
@@ -421,30 +418,54 @@
             }
         }
 
-        // 全域畫面切換中央控制器
+        /* 核心優化：Navbar 中央切換與動作分配機制 */
         function changeStage(targetStage) {
             gameState = targetStage;
             
-            // 隱藏所有面板
+            // 隱藏所有階段
             document.getElementById('stage-setup').classList.remove('active');
             document.getElementById('stage-menu').classList.remove('active');
             document.getElementById('stage-world-config').classList.remove('active');
+            document.getElementById('stage-purchase-config').classList.remove('active');
             
-            // 顯示目標面板
+            // 秀出目標階段
             if (targetStage === 'setup') document.getElementById('stage-setup').classList.add('active');
             if (targetStage === 'menu') {
                 document.getElementById('stage-menu').classList.add('active');
                 checkAndRenderSaveOptions();
             }
             if (targetStage === 'world_config') document.getElementById('stage-world-config').classList.add('active');
+            if (targetStage === 'purchase_config') document.getElementById('stage-purchase-config').classList.add('active');
 
-            // 調整狀態列高亮
-            document.getElementById('nav-home').classList.toggle('disabled', targetStage === 'menu');
+            // 實作問題 1：依據是否在主畫面(menu)，決定顯示「讀取存檔」還是「回到主畫面」
+            const navAction = document.getElementById('nav-dynamic-action');
+            if (targetStage === 'menu') {
+                // 如果在主畫面：按鈕功能改為【讀取存檔】
+                navAction.innerHTML = `<i class="fa-solid fa-folder-open"></i> 讀取存檔`;
+                checkAndRenderSaveOptions(); // 同步檢查使否有存檔決定是否暗淡
+            } else {
+                // 如果已經在設定世界或玩到一半：按鈕功能改為【回到主畫面】
+                navAction.innerHTML = `<i class="fa-solid fa-house"></i> 回到主畫面`;
+                navAction.classList.remove('disabled'); // 隨時可點選退回
+            }
+        }
+
+        // navbar 動態點擊控制
+        function handleNavbarAction() {
+            if (gameState === 'menu') {
+                // 當前在主畫面，此時點擊等於「讀取存檔」
+                continueGame();
+            } else {
+                // 當前不在主畫面，點擊等於安全退回「主畫面選單」
+                const leaveConfirm = confirm("🔮 是否要返回命運主選單？\n(未被鎖定的設定將不會被保存。)");
+                if (leaveConfirm) changeStage('menu');
+            }
         }
 
         function checkAndRenderSaveOptions() {
+            if (gameState !== 'menu') return;
+            const navAction = document.getElementById('nav-dynamic-action');
             const continueBtn = document.getElementById('menu-continue-btn');
-            const navLoad = document.getElementById('nav-load');
             const rawData = localStorage.getItem(SAVE_KEY);
             let isSaveValid = false;
 
@@ -457,82 +478,80 @@
 
             if (isSaveValid) {
                 continueBtn.style.display = 'block';
-                navLoad.classList.add('disabled');
+                navAction.classList.add('disabled'); // 已經幫你自動讀取好了，所以狀態列暗淡處理
             } else {
                 continueBtn.style.display = 'none';
-                navLoad.classList.remove('disabled');
+                navAction.classList.remove('disabled');
             }
         }
 
-        // 新遊戲覆蓋邏輯優化：無存檔時不打擾、直接跳過提示
         function handleNewGame() {
             const rawData = localStorage.getItem(SAVE_KEY);
-            
             if (rawData) {
-                // 有存檔才提示警告
-                const confirmOverwrite = confirm("🔮 命運之書提示：\n檢測到既存的校園生活刻印（舊存檔）。開始新遊戲將徹底抹除舊數據，是否確認重新編織你的命運？");
+                const confirmOverwrite = confirm("🔮 命運之書提示：\n檢測到既存的校園生活刻印。開始新遊戲將徹底抹除舊數據，是否確認重新編織？");
                 if (!confirmOverwrite) return;
-                localStorage.removeItem(SAVE_KEY); // 玩家同意則抹除
+                localStorage.removeItem(SAVE_KEY);
             }
-
-            // 無存檔或已同意抹除，直接進入下一步「世界線配置」
-            changeStage('world_config');
+            changeStage('world_config'); // 無舊存檔直接優雅跳過提示
         }
 
         function continueGame() {
             alert("📖 正在載入歷史刻印，重返霍格華茲...");
-            // 後續直接載入對應遊戲故事畫面
         }
 
-        // 動態計算世界線組合矩陣
+        // 步驟 1 邏輯：動態計算世界線說明
         function updateWorldMatrix() {
             const timeline = document.querySelector('input[name="timeline-mode"]:checked').value;
             const npc = document.querySelector('input[name="npc-mode"]:checked').value;
             const code = `${timeline}${npc}`;
+            const desc = matrixMatrix[code] || "";
             
-            const desc = matrixMatrix[code] || "未知世界線配置";
-            
-            // 更新 UI 顯示
             document.getElementById('matrix-badge').innerText = `世界線代碼：${code}`;
             document.getElementById('matrix-desc-text').innerText = desc;
 
-            // 寫入全域記憶庫中
-            worldLineConfig = {
-                code: code,
-                timeline: timeline,
-                npcScope: npc,
-                narrativeLogic: desc
-            };
+            worldLineConfig = { code: code, timeline: timeline, npcScope: npc, narrativeLogic: desc };
         }
 
-        // 鎖定世界線並開局
-        function lockAndStartWorld() {
-            alert(`✨ 命運已鎖定！\n當前選擇世界線：【${worldLineConfig.code}】\n核心推動邏輯：${worldLineConfig.narrativeLogic}\n\n[系統提示] 全域記憶庫已鎖定此環境變數，後續發送給 AI 的 Prompt 將以此作為最高世界法則。`);
+        function saveWorldConfigAndNext() {
+            // 世界線配置完畢，流暢進入下一步驟 2 頁面
+            changeStage('purchase_config');
+        }
+
+        // 步驟 2 邏輯：動態計算採買與快轉描述 (新增)
+        function updatePurchaseRouteText() {
+            const val = document.querySelector('input[name="purchase-mode"]:checked').value;
+            const badge = document.getElementById('route-badge');
+            const descText = document.getElementById('matrix-desc-text');
+            const routeDescText = document.getElementById('route-desc-text');
             
-            // 此處即可將 worldLineConfig 封裝進未來存檔，或傳入故事生成階段
-            // proceedToCharacterCreation();
-        }
+            purchaseRouteFlag = val;
 
-        // ==========================================
-        // 全域導航控制（核心修改：防止資源耗盡重登死局）
-        // ==========================================
-        function navToMainMenu() {
-            if (gameState === 'setup') {
-                changeStage('menu');
+            if (val === 'yes') {
+                badge.innerText = "預計分裂路線：【路徑甲：一條龍體驗】";
+                routeDescText.innerHTML = `AI 將引導經歷三大經典里程碑：<br>
+                <strong>1. 斜角巷採買：</strong> 自由探索並挑選購買專屬魔杖，回傳隱性學院傾向。<br>
+                <strong>2. 霍格華茲特快車：</strong> 月台出發，於火車包廂建立最初人際關係。<br>
+                <strong>3. 黑湖夜航：</strong> 跟隨海格乘船渡河，鋪陳入學震撼感。`;
             } else {
-                changeStage('menu');
+                badge.innerText = "預計分裂路線：【路徑乙：極速快轉】";
+                routeDescText.innerHTML = `系統將跳過採買情境，通知 AI 以黑幕形式快轉。<br>
+                故事開頭將直接聚焦於<strong>大禮堂的雙扇大門前</strong>，立即開始分院儀式。`;
             }
         }
 
-        function navLoadGame() {
-            alert("🔍 讀取外部備份存檔檔案...");
+        function lockPurchaseConfigAndStart() {
+            alert(`✨ 新生入學標籤配置完成！\n
+            1. 世界線：【${worldLineConfig.code}】
+            2. 入學路徑：【${purchaseRouteFlag === 'yes' ? '路徑甲：一條龍' : '路徑乙：快轉大禮堂'}】\n
+            [系統提示] 前端已成功將此開局環境標籤存檔緩存。現在可以開始呼叫 AI 模組，真正生成你的小說篇章了！`);
+            
+            // 接下來可以串接真正的小說文本對話畫面元件
+            // proceedToTrueGameStoryView();
         }
 
-        // 切換 AI 時，先用 prevGameState 記下玩家目前在幹嘛（例如在世界配置頁、或未來的故事頁）
         function navToAIConfig() {
-            prevGameState = gameState; // 記住當前頁面
+            prevGameState = gameState; 
             changeStage('setup');
-            // 此時玩家可以在 setup 面板換 Key 或換登入帳號，完成後會回到 prevGameState
         }
     </script>
 </body>
