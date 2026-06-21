@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>魔法覺醒：AI 命運織路者</title>
+    <title>霍格華茲：AI 命運織路者</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -15,9 +15,10 @@
             --color-gold: #c5a880;
             --color-gold-bright: #f3e5ab;
             --color-parchment: #dcd1b4;
-            --color-panel-bg: rgba(23, 20, 31, 0.85);
+            --color-panel-bg: rgba(23, 20, 31, 0.9);
             --color-border: #4a3f35;
             --color-disabled: #554d42;
+            --color-magic-purple: #3b2d54;
         }
 
         * {
@@ -71,7 +72,7 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
             box-shadow: 0 2px 20px rgba(0,0,0,0.8);
-            display: none; /* 初始配置完才顯示，或全域顯示 */
+            display: none;
         }
 
         .nav-logo {
@@ -85,98 +86,113 @@
             gap: 8px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 24px;
-            font-size: 0.9rem;
-        }
-
-        .nav-item {
-            color: var(--color-parchment);
-            text-decoration: none;
-            cursor: pointer;
-            transition: color 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .nav-item:hover:not(.disabled) {
-            color: var(--color-gold-bright);
-        }
-        .nav-item.disabled {
-            color: var(--color-disabled);
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+        .nav-links { display: flex; gap: 24px; font-size: 0.9rem; }
+        .nav-item { color: var(--color-parchment); text-decoration: none; cursor: pointer; transition: color 0.3s; display: flex; align-items: center; gap: 6px; }
+        .nav-item:hover:not(.disabled) { color: var(--color-gold-bright); }
+        .nav-item.disabled { color: var(--color-disabled); cursor: not-allowed; pointer-events: none; }
 
         /* 容器基本結構 */
         .game-stage {
             display: none;
             position: relative;
             z-index: 10;
-            width: 90%;
-            max-width: 580px;
+            width: 92%;
+            max-width: 650px;
             background: var(--color-panel-bg);
             border: 2px solid var(--color-border);
             border-radius: 4px;
-            padding: 40px 30px;
+            padding: 35px 30px;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(197, 168, 128, 0.1);
             backdrop-filter: blur(12px);
-            animation: fadeIn 0.5s ease forwards;
+            animation: fadeIn 0.4s ease forwards;
         }
 
         .game-stage.active { display: block; }
 
-        .setup-container::before, .setup-container::after,
-        .menu-container::before, .menu-container::after {
-            content: "";
-            position: absolute;
-            width: 16px;
-            height: 16px;
-            border: 2px solid var(--color-gold);
-            pointer-events: none;
+        .game-stage::before, .game-stage::after {
+            content: ""; position: absolute; width: 16px; height: 16px; border: 2px solid var(--color-gold); pointer-events: none;
         }
-        .setup-container::before, .menu-container::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
-        .setup-container::after, .menu-container::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+        .game-stage::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .game-stage::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
-        /* 標題與基礎樣式保持 */
-        .header-section { text-align: center; margin-bottom: 35px; }
-        .game-title { font-family: 'Cinzel', serif; font-size: 2.2rem; font-weight: 700; color: var(--color-gold-bright); letter-spacing: 3px; text-shadow: 0 0 12px rgba(243, 229, 171, 0.4); margin-bottom: 8px; }
-        .game-subtitle { font-size: 0.95rem; color: #8c8275; letter-spacing: 1px; }
-        .divider { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
+        /* 標題與基礎樣式 */
+        .header-section { text-align: center; margin-bottom: 25px; }
+        .game-title { font-family: 'Cinzel', serif; font-size: 2rem; font-weight: 700; color: var(--color-gold-bright); letter-spacing: 3px; text-shadow: 0 0 12px rgba(243, 229, 171, 0.4); margin-bottom: 6px; }
+        .game-subtitle { font-size: 0.9rem; color: #8c8275; letter-spacing: 1px; }
+        .divider { display: flex; align-items: center; justify-content: center; margin: 15px 0; }
         .divider::before, .divider::after { content: ""; height: 1px; width: 60px; background: linear-gradient(to right, transparent, var(--color-border), transparent); }
         .divider i { color: var(--color-gold); margin: 0 15px; font-size: 0.8rem; }
 
-        /* 模式切換排版 */
-        .mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 30px; }
-        .mode-card { background: rgba(35, 30, 45, 0.6); border: 1px solid #3a322a; border-radius: 6px; padding: 20px 15px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
-        .mode-card:hover { border-color: var(--color-gold); background: rgba(45, 38, 58, 0.8); transform: translateY(-2px); }
+        /* 模式選擇 */
+        .mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 25px; }
+        .mode-card { background: rgba(35, 30, 45, 0.6); border: 1px solid #3a322a; border-radius: 6px; padding: 18px 12px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
+        .mode-card:hover { border-color: var(--color-gold); background: rgba(45, 38, 58, 0.8); }
         .mode-card.active { border-color: var(--color-gold-bright); background: rgba(197, 168, 128, 0.12); box-shadow: 0 0 15px rgba(197, 168, 128, 0.2); }
-        .mode-card i { font-size: 1.8rem; color: var(--color-gold); margin-bottom: 12px; }
-        .mode-title { font-weight: 600; font-size: 1.05rem; margin-bottom: 6px; color: #fff; }
-        .mode-desc { font-size: 0.8rem; color: #9e9282; line-height: 1.4; }
+        .mode-card i { font-size: 1.6rem; color: var(--color-gold); margin-bottom: 10px; }
+        .mode-title { font-weight: 600; font-size: 1rem; margin-bottom: 4px; color: #fff; }
+        .mode-desc { font-size: 0.78rem; color: #9e9282; line-height: 1.4; }
 
-        .config-content-wrapper { min-height: 140px; margin-bottom: 25px; }
+        .config-content-wrapper { min-height: 100px; margin-bottom: 25px; }
         .config-panel { display: none; }
         .config-panel.active { display: block; }
 
-        .input-group { margin-top: 10px; }
+        .input-group { margin-top: 5px; }
         .input-label { display: block; font-size: 0.85rem; color: var(--color-gold); margin-bottom: 8px; }
         .input-wrapper { position: relative; display: flex; align-items: center; }
         .input-wrapper i { position: absolute; left: 12px; color: #615649; }
         .magic-input { width: 100%; background: #16131c; border: 1px solid var(--color-border); border-radius: 4px; padding: 12px 12px 12px 38px; color: #fff; font-family: monospace; font-size: 0.95rem; outline: none; }
         
-        .status-box { border-radius: 4px; padding: 15px; font-size: 0.88rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 12px; }
+        .status-box { border-radius: 4px; padding: 15px; font-size: 0.85rem; line-height: 1.5; display: flex; align-items: flex-start; gap: 12px; }
         .status-success { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; }
         .status-error { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #f87171; }
 
-        /* 按鈕基本樣式 */
-        .btn-submit { width: 100%; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); border: 1px solid var(--color-gold); color: #fff; padding: 14px; font-size: 1.1rem; font-weight: 600; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; letter-spacing: 2px; margin-bottom: 12px;}
+        /* 按鈕樣式 */
+        .btn-submit { width: 100%; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); border: 1px solid var(--color-gold); color: #fff; padding: 14px; font-size: 1.05rem; font-weight: 600; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; letter-spacing: 2px; margin-bottom: 12px;}
         .btn-submit:hover:not(:disabled) { background: linear-gradient(135deg, #bfa47a 0%, #8c6e46 100%); box-shadow: 0 0 15px rgba(197, 168, 128, 0.4); }
         .btn-submit:disabled { background: #2a2520; border-color: #443c35; color: #665f55; cursor: not-allowed; box-shadow: none; }
-        
         .btn-secondary { background: rgba(30, 25, 35, 0.8); border: 1px solid var(--color-border); color: var(--color-parchment); }
         .btn-secondary:hover:not(:disabled) { background: rgba(45, 38, 55, 0.9); border-color: var(--color-gold); color: #fff; }
+
+        /* 世界線自訂選擇區域 */
+        .config-select-section {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .select-group {
+            background: rgba(20, 15, 25, 0.6);
+            border: 1px solid var(--color-border);
+            padding: 12px;
+            border-radius: 4px;
+        }
+        .select-title { font-size: 0.9rem; color: var(--color-gold-bright); margin-bottom: 8px; font-weight: 600; }
+        .radio-options { display: flex; flex-direction: column; gap: 8px; }
+        .radio-label { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; cursor: pointer; color: #b5a99a; transition: color 0.2s; }
+        .radio-label:hover { color: #fff; }
+        .radio-label input { accent-color: var(--color-gold); }
+
+        /* 交叉矩陣動態結果顯示盒 */
+        .matrix-result-box {
+            background: rgba(40, 32, 54, 0.4);
+            border: 1px dashed var(--color-gold);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+            min-height: 80px;
+        }
+        .matrix-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #a8895f 0%, #735a38 100%);
+            color: #fff;
+            padding: 2px 10px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            font-family: monospace;
+            margin-bottom: 8px;
+        }
+        .matrix-text { font-size: 0.85rem; line-height: 1.5; color: var(--color-parchment); }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -185,8 +201,8 @@
 
     <nav id="global-navbar" class="global-navbar">
         <div class="nav-logo">
-            <i class="fa-solid fa-scroll"></i>
-            <span>MAGIC AWAKENED</span>
+            <i class="fa-solid fa-hat-wizard"></i>
+            <span>HOGWARTS LIFE</span>
         </div>
         <div class="nav-links">
             <a id="nav-home" class="nav-item disabled" onclick="navToMainMenu()"><i class="fa-solid fa-house"></i> 回到主畫面</a>
@@ -198,23 +214,21 @@
     <div id="stage-setup" class="game-stage setup-container active">
         <div class="header-section">
             <h1 class="game-title">MAGIC AWAKENED</h1>
-            <p class="game-subtitle">─ AI 動態敘事文字冒險 ─</p>
+            <p class="game-subtitle">─ AI 織路模組設定 ─</p>
             <div class="divider"><i>✦</i></div>
         </div>
-
         <div class="mode-options">
             <div class="mode-card active" id="mode-key-btn" onclick="switchMode('key')">
                 <i class="fa-solid fa-key"></i>
                 <div class="mode-title">自主串接模式</div>
-                <div class="mode-desc">自備 Gemini API 金鑰，解鎖最高速的客製化跑團體驗</div>
+                <div class="mode-desc">自備 Gemini API 金鑰，解鎖最高速的客製化體驗</div>
             </div>
             <div class="mode-card" id="mode-shell-btn" onclick="switchMode('shell')">
                 <i class="fa-solid fa-mobile-screen-button"></i>
                 <div class="mode-title">App 免費外殼</div>
-                <div class="mode-desc">透過專屬 Android 外殼安全登入，免金鑰即開即玩</div>
+                <div class="mode-desc">透過手機外殼背景認證，免金鑰即開即玩</div>
             </div>
         </div>
-
         <div class="config-content-wrapper">
             <div class="config-panel active" id="panel-key">
                 <div class="input-group">
@@ -229,9 +243,8 @@
                 <div id="shell-status" class="status-box"></div>
             </div>
         </div>
-
         <button id="start-game-btn" class="btn-submit" onclick="confirmSetup()">
-            <span id="btn-text">開啟魔幻冒險</span>
+            <span id="btn-text">確認模組設定</span>
             <i class="fa-solid fa-chevron-right"></i>
         </button>
     </div>
@@ -239,48 +252,115 @@
     <div id="stage-menu" class="game-stage menu-container">
         <div class="header-section">
             <h1 class="game-title">命運選單</h1>
-            <p class="game-subtitle">─ 檢測編織者的歷史刻印 ─</p>
+            <p class="game-subtitle">─ 選擇進入魔法世界的方式 ─</p>
             <div class="divider"><i>✦</i></div>
         </div>
-
-        <div style="margin-top: 40px;">
+        <div style="margin-top: 30px;">
             <button id="menu-continue-btn" class="btn-submit" onclick="continueGame()" style="display: none;">
-                <i class="fa-solid fa-hourglass-start"></i> 繼續冒險 (讀取存檔)
+                <i class="fa-solid fa-hourglass-start"></i> 繼續校園生活 (讀取自動存檔)
             </button>
-            
             <button id="menu-new-btn" class="btn-submit btn-secondary" onclick="handleNewGame()">
-                <i class="fa-solid fa-book-sparkles"></i> 開始新遊戲
+                <i class="fa-solid fa-book-sparkles"></i> 開始全新校園生活
             </button>
         </div>
     </div>
 
+    <div id="stage-world-config" class="game-stage">
+        <div class="header-section">
+            <h1 class="game-title">分流儀式：世界線編織</h1>
+            <p class="game-subtitle">─ 設定開局敘事基礎矩陣（設定後即刻鎖定，不可逆） ─</p>
+            <div class="divider"><i>✦</i></div>
+        </div>
+
+        <div class="config-select-section">
+            <div class="select-group">
+                <div class="select-title"><i class="fa-solid fa-book-open"></i> 1. 核心歷史事件流 (劇情線)</div>
+                <div class="radio-options">
+                    <label class="radio-label">
+                        <input type="radio" name="timeline-mode" value="A" checked onchange="updateWorldMatrix()">
+                        <span><strong>模式 A：包含原著主線事件</strong> (隨歷史軌跡推進，將玩家捲入重大風暴)</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="timeline-mode" value="B" onchange="updateWorldMatrix()">
+                        <span><strong>模式 B：純 AI 生成原創事件</strong> (原著重大事件不發生，享受純粹平行時空)</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="select-group">
+                <div class="select-title"><i class="fa-solid fa-users-rectangle"></i> 2. 校園人物生成範圍 (角色庫)</div>
+                <div class="radio-options">
+                    <label class="radio-label">
+                        <input type="radio" name="npc-mode" value="1" checked onchange="updateWorldMatrix()">
+                        <span><strong>模式 1：完全比照原著角色</strong> (哈利、妙麗等經典原著人物)</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="npc-mode" value="2" onchange="updateWorldMatrix()">
+                        <span><strong>模式 2：原著角色 + 原創 AI 混搭</strong> (保留原著，同時偶遇 AI 新血)</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="npc-mode" value="3" onchange="updateWorldMatrix()">
+                        <span><strong>模式 3：僅教職員原著，學生全原創</strong> (教授不變，但同學全是陌生面孔)</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="npc-mode" value="4" onchange="updateWorldMatrix()">
+                        <span><strong>模式 4：全原創 NPC</strong> (純即興魔法校園，師生皆為全新存在)</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="matrix-result-box">
+            <div id="matrix-badge" class="matrix-badge">世界線：A1</div>
+            <div id="matrix-desc-text" class="matrix-text">載入中...</div>
+        </div>
+
+        <button class="btn-submit" onclick="lockAndStartWorld()">
+            <span>鎖定世界線，踏上九又四分之三月台</span>
+            <i class="fa-solid fa-wand-sparkles"></i>
+        </button>
+    </div>
+
     <script>
+        // 全域狀態機
         let currentMode = 'key'; 
         let isCapacitorAvailable = false;
+        let gameState = 'setup'; // 追蹤當前頁面狀態：setup | menu | world_config
+        let prevGameState = 'setup'; // 用於切換 AI 時記憶返回
         
-        // 模擬的存檔金鑰（用於未來完整性驗證）
+        // 核心玩家選擇記憶庫 (未來呼叫 AI 或是寫入存檔的核心數據)
+        let worldLineConfig = {
+            code: 'A1',
+            timeline: 'A',
+            npcScope: '1',
+            narrativeLogic: ''
+        };
+
         const SAVE_KEY = 'rpg_game_save_data';
+
+        // 世界線交叉組合矩陣說明數據
+        const matrixMatrix = {
+            'A1': "原著主線由原著角色依好感度級距自然將玩家捲入，可能隨機遭遇校園異象與暗線。",
+            'A2': "原著主線由原著角色依好感度級距自然將玩家捲入，可能隨機遭遇校園異象與暗線。",
+            'A3': "原著主線嚴格由教職員（固定原著設定）推動，學生社交圈全為原創角色。",
+            'A4': "原著主線事件以「背景暗線」形式存在，無固定原著角色推動，由 AI 融入異象讓玩家自行探索捲入。",
+            'B1': "原著角色僅作為具備原著性格的普通校園 NPC 存在，AI 暗線絕不指向任何原著重大事件。",
+            'B2': "原著角色僅作為具備原著性格的普通校園 NPC 存在，AI 暗線絕不指向任何原著重大事件。",
+            'B3': "教職員維持原著設定但絕不觸發主線，學生圈純原創，享受純粹的平行時校園生活。",
+            'B4': "純原創魔法校園生活，所有暗線、師生、同學均為 AI 即興生成。"
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
             checkEnvironment();
             const savedKey = localStorage.getItem('user_gemini_api_key');
-            if (savedKey) {
-                document.getElementById('api-key-input').value = savedKey;
-            }
+            if (savedKey) document.getElementById('api-key-input').value = savedKey;
             validateForm();
             document.getElementById('api-key-input').addEventListener('input', validateForm);
-            
-            // 為了測試，我們塞入一個暫時的合法/損壞存檔測試按鈕在 Console 或手動模擬
-            // localStorage.setItem(SAVE_KEY, JSON.stringify({ hp: 100, level: 1 })); // 取消註解可測試有存檔
+            updateWorldMatrix();
         });
 
-        // 環境偵測
         function checkEnvironment() {
-            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
-                isCapacitorAvailable = true;
-            } else {
-                isCapacitorAvailable = false;
-            }
+            isCapacitorAvailable = !!(window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser);
             updateShellPanelUI();
         }
 
@@ -288,10 +368,10 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 運行環境偵測成功！</strong><br>隱藏外殼自動認證已就緒。點擊下方按鈕將喚醒手機原生登入視窗。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將喚醒登入視窗。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼插件。請切換回「自主串接模式」或下載特製 APK 開啟。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼憑證。請使用「自主串接模式」。</div>`;
             }
         }
 
@@ -301,142 +381,158 @@
             document.getElementById('mode-shell-btn').classList.toggle('active', mode === 'shell');
             document.getElementById('panel-key').classList.toggle('active', mode === 'key');
             document.getElementById('panel-shell').classList.toggle('active', mode === 'shell');
-            
-            const btnText = document.getElementById('btn-text');
-            btnText.innerText = (mode === 'shell') ? "登入 Gemini 並啟動" : "開啟魔幻冒險";
+            document.getElementById('btn-text').innerText = (mode === 'shell') ? "登入 Gemini 並認證" : "確認模組設定";
             validateForm();
         }
 
         function validateForm() {
             const startBtn = document.getElementById('start-game-btn');
             if (currentMode === 'key') {
-                const keyValue = document.getElementById('api-key-input').value.trim();
-                startBtn.disabled = (keyValue.length < 10);
-            } else if (currentMode === 'shell') {
+                startBtn.disabled = (document.getElementById('api-key-input').value.trim().length < 10);
+            } else {
                 startBtn.disabled = !isCapacitorAvailable;
             }
         }
 
-        // 核心流程：AI 連動確認後切換
+        // 核心設定確認：切換畫面
         async function confirmSetup() {
             if (currentMode === 'key') {
-                const apiKey = document.getElementById('api-key-input').value.trim();
-                localStorage.setItem('user_gemini_api_key', apiKey);
-                enterGameMenu();
-            } else if (currentMode === 'shell') {
-                if (window.Capacitor && window.Capacitor.Plugins.Browser) {
-                    const Browser = window.Capacitor.Plugins.Browser;
-                    try {
-                        await Browser.open({ url: 'https://gemini.google.com' });
-                        Browser.addListener('browserFinished', () => {
-                            enterGameMenu();
-                        });
-                    } catch (err) {
-                        alert("喚醒外部視窗失敗：" + err);
-                    }
-                }
+                localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
+                handleSetupSuccess();
+            } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
+                try {
+                    await window.Capacitor.Plugins.Browser.open({ url: 'https://gemini.google.com' });
+                    window.Capacitor.Plugins.Browser.addListener('browserFinished', () => {
+                        handleSetupSuccess();
+                    });
+                } catch (err) { alert("喚醒外部視窗失敗：" + err); }
             }
         }
 
-        // ==========================================
-        // 核心優化：進入主功能選單與狀態列控制
-        // ==========================================
-        
-        function enterGameMenu() {
-            // 1. 顯示全域頂部狀態列
+        // 成功認證後的跳轉（新增：記憶返回邏輯）
+        function handleSetupSuccess() {
             document.getElementById('global-navbar').style.display = 'flex';
             
-            // 2. 切換場景至主選單
-            document.getElementById('stage-setup').classList.remove('active');
-            document.getElementById('stage-menu').classList.add('active');
-            
-            // 3. 更新全域狀態列按鈕高亮與暗淡
-            document.getElementById('nav-home').classList.add('disabled'); // 目前就在主畫面，使其暗淡
-            
-            // 4. 進行存檔完整性校驗與主畫面渲染
-            checkAndRenderSaveOptions();
+            // 如果是玩到一半從全域過來切換 AI 的，切換完直接帶他回到原本中斷的畫面
+            if (prevGameState && prevGameState !== 'setup') {
+                changeStage(prevGameState);
+            } else {
+                changeStage('menu');
+            }
         }
 
-        // 存檔機制與完整性校驗
+        // 全域畫面切換中央控制器
+        function changeStage(targetStage) {
+            gameState = targetStage;
+            
+            // 隱藏所有面板
+            document.getElementById('stage-setup').classList.remove('active');
+            document.getElementById('stage-menu').classList.remove('active');
+            document.getElementById('stage-world-config').classList.remove('active');
+            
+            // 顯示目標面板
+            if (targetStage === 'setup') document.getElementById('stage-setup').classList.add('active');
+            if (targetStage === 'menu') {
+                document.getElementById('stage-menu').classList.add('active');
+                checkAndRenderSaveOptions();
+            }
+            if (targetStage === 'world_config') document.getElementById('stage-world-config').classList.add('active');
+
+            // 調整狀態列高亮
+            document.getElementById('nav-home').classList.toggle('disabled', targetStage === 'menu');
+        }
+
         function checkAndRenderSaveOptions() {
             const continueBtn = document.getElementById('menu-continue-btn');
             const navLoad = document.getElementById('nav-load');
-            
             const rawData = localStorage.getItem(SAVE_KEY);
             let isSaveValid = false;
 
             if (rawData) {
                 try {
                     const parsed = JSON.parse(rawData);
-                    // 核心完整性校驗：判定是否有結構損壞 (此處假設存檔必須包含基本屬性，若為空或不符則視為損壞)
-                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) {
-                        isSaveValid = true;
-                    }
-                } catch (e) {
-                    isSaveValid = false; // JSON 解析失敗視為損壞
-                }
+                    if (parsed && typeof parsed === 'object' && Object.keys(parsed).length > 0) isSaveValid = true;
+                } catch (e) { isSaveValid = false; }
             }
 
             if (isSaveValid) {
-                // 有合法存檔：渲染繼續遊戲，且狀態列的「讀取存檔」因為已自動讀取，依照需求變更為不可點選的淡色
                 continueBtn.style.display = 'block';
                 navLoad.classList.add('disabled');
             } else {
-                // 無存檔或損壞：僅保留新遊戲，狀態列「讀取存檔」維持可點選（允許未來手動外接載入）
                 continueBtn.style.display = 'none';
                 navLoad.classList.remove('disabled');
-                if (rawData) {
-                    console.warn("💥 偵測到損壞的存檔，系統已自動判定為無存檔。");
-                }
             }
         }
 
-        // 點擊「開始新遊戲」的覆蓋行為
+        // 新遊戲覆蓋邏輯優化：無存檔時不打擾、直接跳過提示
         function handleNewGame() {
             const rawData = localStorage.getItem(SAVE_KEY);
             
             if (rawData) {
-                const confirmOverwrite = confirm("🔮 命運之書提示：\n檢測到既存的歷史刻印（舊存檔）。開始新遊戲將徹底抹除並覆蓋舊數據，是否確認重新編織你的命運？");
+                // 有存檔才提示警告
+                const confirmOverwrite = confirm("🔮 命運之書提示：\n檢測到既存的校園生活刻印（舊存檔）。開始新遊戲將徹底抹除舊數據，是否確認重新編織你的命運？");
                 if (!confirmOverwrite) return;
+                localStorage.removeItem(SAVE_KEY); // 玩家同意則抹除
             }
 
-            // 徹底清除舊數據
-            localStorage.removeItem(SAVE_KEY);
-            alert("✨ 舊存檔已抹除，正在進入角色初始化步驟...");
-            
-            // 後續進入新遊戲畫面邏輯
-            // startNewGameInitialization(); 
+            // 無存檔或已同意抹除，直接進入下一步「世界線配置」
+            changeStage('world_config');
         }
 
-        // 點擊「繼續遊戲」
         function continueGame() {
-            alert("📖 正在載入歷史刻印，重返冒險世界...");
-            // 後續載入存檔畫面邏輯
+            alert("📖 正在載入歷史刻印，重返霍格華茲...");
+            // 後續直接載入對應遊戲故事畫面
         }
 
-        // 全域導航：回到主畫面
-        function navToMainMenu() {
-            document.getElementById('stage-setup').classList.remove('active');
-            // 如果有其他遊戲內場景，也在這關閉
-            document.getElementById('stage-menu').classList.add('active');
+        // 動態計算世界線組合矩陣
+        function updateWorldMatrix() {
+            const timeline = document.querySelector('input[name="timeline-mode"]:checked').value;
+            const npc = document.querySelector('input[name="npc-mode"]:checked').value;
+            const code = `${timeline}${npc}`;
             
-            document.getElementById('nav-home').classList.add('disabled');
-            checkAndRenderSaveOptions();
+            const desc = matrixMatrix[code] || "未知世界線配置";
+            
+            // 更新 UI 顯示
+            document.getElementById('matrix-badge').innerText = `世界線代碼：${code}`;
+            document.getElementById('matrix-desc-text').innerText = desc;
+
+            // 寫入全域記憶庫中
+            worldLineConfig = {
+                code: code,
+                timeline: timeline,
+                npcScope: npc,
+                narrativeLogic: desc
+            };
         }
 
-        // 全域導航：讀取存檔（當前沒自動讀取到時可點選）
-        function navLoadGame() {
-            alert("🔍 開啟外部存檔載入羅盤... (此處未來可擴充導入 .json 檔案或雲端讀檔)");
+        // 鎖定世界線並開局
+        function lockAndStartWorld() {
+            alert(`✨ 命運已鎖定！\n當前選擇世界線：【${worldLineConfig.code}】\n核心推動邏輯：${worldLineConfig.narrativeLogic}\n\n[系統提示] 全域記憶庫已鎖定此環境變數，後續發送給 AI 的 Prompt 將以此作為最高世界法則。`);
+            
+            // 此處即可將 worldLineConfig 封裝進未來存檔，或傳入故事生成階段
+            // proceedToCharacterCreation();
         }
 
-        // 全域導航：切換 AI
-        function navToAIConfig() {
-            const leaveConfirm = confirm("🤖 是否要暫時返回 AI 織路模組設定介面？\n此操作不會影響當前遊戲進行。");
-            if (leaveConfirm) {
-                document.getElementById('stage-menu').classList.remove('active');
-                document.getElementById('stage-setup').classList.add('active');
-                document.getElementById('nav-home').classList.remove('disabled'); // 離開主畫面了，主畫面按鈕亮起
+        // ==========================================
+        // 全域導航控制（核心修改：防止資源耗盡重登死局）
+        // ==========================================
+        function navToMainMenu() {
+            if (gameState === 'setup') {
+                changeStage('menu');
+            } else {
+                changeStage('menu');
             }
+        }
+
+        function navLoadGame() {
+            alert("🔍 讀取外部備份存檔檔案...");
+        }
+
+        // 切換 AI 時，先用 prevGameState 記下玩家目前在幹嘛（例如在世界配置頁、或未來的故事頁）
+        function navToAIConfig() {
+            prevGameState = gameState; // 記住當前頁面
+            changeStage('setup');
+            // 此時玩家可以在 setup 面板換 Key 或換登入帳號，完成後會回到 prevGameState
         }
     </script>
 </body>
