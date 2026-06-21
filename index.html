@@ -147,36 +147,6 @@
         .btn-secondary { background: rgba(30, 25, 35, 0.8); border: 1px solid var(--color-border); color: var(--color-parchment); }
         .btn-secondary:hover:not(:disabled) { background: rgba(45, 38, 55, 0.9); border-color: var(--color-gold); color: #fff; }
 
-        /* 全新修正：魔法網頁同步覆蓋視窗（Overlay） */
-        .magic-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(10, 8, 14, 0.95);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            animation: fadeIn 0.3s ease;
-        }
-        .magic-overlay-box {
-            background: #1c1824;
-            border: 2px solid var(--color-gold-bright);
-            border-radius: 8px;
-            max-width: 450px;
-            width: 100%;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 0 30px rgba(243, 229, 171, 0.2);
-        }
-        .magic-overlay-icon {
-            font-size: 2.5rem;
-            color: var(--color-gold-bright);
-            margin-bottom: 15px;
-            animation: pulse 1.5s infinite ease-in-out;
-        }
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
-
         .config-select-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .select-group { background: rgba(20, 15, 25, 0.6); border: 1px solid var(--color-border); padding: 15px; border-radius: 4px; }
         .select-title { font-size: 0.9rem; color: var(--color-gold-bright); margin-bottom: 10px; font-weight: 600; }
@@ -193,20 +163,6 @@
     </style>
 </head>
 <body>
-
-    <div id="app-sync-overlay" class="magic-overlay" style="display: none;">
-        <div class="magic-overlay-box">
-            <div class="magic-overlay-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-            <h3 style="color: var(--color-gold-bright); margin-bottom: 10px; font-size: 1.2rem;">已成功喚醒 AI 驗證視窗</h3>
-            <p style="font-size: 0.85rem; color: #b5a99a; line-height: 1.6; margin-bottom: 20px;">
-                請在剛才跳出的瀏覽器分頁中完成 Google 帳號登入。<br>
-                確認登入完成後，<strong>請直接點擊下方按鈕</strong>，系統將關閉網頁並同步切換回魔法世界！
-            </p>
-            <button class="btn-submit" onclick="returnFromShellAuth()" style="margin-bottom: 0;">
-                <i class="fa-solid fa-circle-check"></i> 確認登入，切換回遊戲
-            </button>
-        </div>
-    </div>
 
     <nav id="global-navbar" class="global-navbar">
         <div class="nav-logo">
@@ -331,7 +287,7 @@
 
     <div id="stage-purchase-config" class="game-stage">
         <div class="header-section">
-            <h1 class="game-title">採買抉責</h1>
+            <h1 class="game-title">採買抉擇</h1>
             <p class="game-subtitle">─ 決定進入入學前夕的敘事深度 ─</p>
             <div class="divider"><i>✦</i></div>
         </div>
@@ -404,7 +360,7 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將啟動同步傳送門。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將喚醒帶有控制條的登入視窗。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
                 statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼憑證。請使用「自主串接模式」。</div>`;
@@ -417,7 +373,7 @@
             document.getElementById('mode-shell-btn').classList.toggle('active', mode === 'shell');
             document.getElementById('panel-key').classList.toggle('active', mode === 'key');
             document.getElementById('panel-shell').classList.toggle('active', mode === 'shell');
-            document.getElementById('btn-text').innerText = (mode === 'shell') ? "登入 Gemini 並認證" : "確認模組設定";
+            document.getElementById('btn-text').innerText = (mode === 'shell') ? "開啟認證對話視窗" : "確認模組設定";
             validateForm();
         }
 
@@ -430,7 +386,6 @@
             }
         }
 
-        // 核心修改：確認設定時，直接拉起 Overlay 同步視窗，拒絕卡頓和被動等待
         async function confirmSetup() {
             if (currentMode === 'key') {
                 localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
@@ -438,32 +393,20 @@
                 handleSetupSuccess();
             } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
                 try {
-                    // 1. 打開內嵌/外部 AI 對話視窗
-                    await window.Capacitor.Plugins.Browser.open({ url: 'https://gemini.google.com' });
-                    
-                    // 2. 修正：立刻將 App 內的「中控同步視窗」浮現出來，讓用戶有主動權
-                    const overlay = document.getElementById('app-sync-overlay');
-                    overlay.style.display = 'flex';
-
-                    // 3. 保留一個被動安全監聽（如果用戶用手機自帶返回鍵關閉的話也能觸發）
-                    window.Capacitor.Plugins.Browser.addListener('browserFinished', () => {
-                        overlay.style.display = 'none';
-                        handleSetupSuccess();
+                    // 【關鍵修正】：移除後置定時器與後置彈窗。
+                    // 直接開啟自帶控制條/關閉按鈕的內嵌視窗，當玩家在對話視窗點擊「Done」或「關閉」時，立刻直覺切換回遊戲。
+                    await window.Capacitor.Plugins.Browser.open({ 
+                        url: 'https://gemini.google.com',
+                        windowName: '_blank',
+                        presentationStyle: 'popover' // 在 iOS/Android 強制開啟具備完成/切換按鈕的視窗
                     });
-                } catch (err) { alert("喚醒外部視窗失敗：" + err); }
+                    
+                    // 只要視窗一開啟，便默認完成對齊，直接進入成功狀態，不使用任何干擾體驗的 Alert
+                    handleSetupSuccess();
+                } catch (err) { 
+                    alert("喚醒外部視窗失敗：" + err); 
+                }
             }
-        }
-
-        // 用戶在 AI 視窗操作完，回到 App 直接點擊大按鈕切換
-        function returnFromShellAuth() {
-            // 隱藏中控層
-            document.getElementById('app-sync-overlay').style.display = 'none';
-            // 強制要求外殼把置頂的 Browser 視窗關掉，釋放記憶體
-            if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Browser) {
-                window.Capacitor.Plugins.Browser.close();
-            }
-            // 順暢流向下一階段
-            handleSetupSuccess();
         }
 
         function handleSetupSuccess() {
