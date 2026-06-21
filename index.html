@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>魔法覺醒：AI 命運織路者</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Noto+Serif+TC:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --color-bg: #0d0c12;
+            --color-gold: #c5a880;
+            --color-gold-bright: #f3e5ab;
+            --color-parchment: #dcd1b4;
+            --color-panel-bg: rgba(23, 20, 31, 0.85);
+            --color-border: #4a3f35;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            background-image: 
+                radial-gradient(circle at 50% 30%, rgba(197, 168, 128, 0.08), transparent 60%),
+                radial-gradient(circle at 50% 80%, rgba(98, 0, 234, 0.05), transparent 50%);
+            color: var(--color-parchment);
+            font-family: 'Noto Serif TC', serif;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* 魔幻背景粒子流（純 CSS 氛圍） */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><circle cx="50" cy="50" r="1" fill="rgba(197,168,128,0.3)"/></svg>');
+            opacity: 0.6;
+            animation: bgShift 60s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes bgShift {
+            from { background-position: 0 0; }
+            to { background-position: 1000px 1000px; }
+        }
+
+        /* 歡迎與設定主面板 */
+        .setup-container {
+            position: relative;
+            z-index: 10;
+            width: 90%;
+            max-width: 580px;
+            background: var(--color-panel-bg);
+            border: 2px solid var(--color-border);
+            border-radius: 4px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(197, 168, 128, 0.1);
+            backdrop-filter: blur(12px);
+            transition: all 0.4s ease;
+        }
+
+        /* 四角古典邊框裝飾 */
+        .setup-container::before, .setup-container::after {
+            content: "";
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--color-gold);
+            pointer-events: none;
+        }
+        .setup-container::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
+        .setup-container::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
+
+        /* 標題區 */
+        .header-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .game-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--color-gold-bright);
+            letter-spacing: 3px;
+            text-shadow: 0 0 12px rgba(243, 229, 171, 0.4);
+            margin-bottom: 8px;
+        }
+
+        .game-subtitle {
+            font-size: 0.95rem;
+            color: #8c8275;
+            letter-spacing: 1px;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+        .divider::before, .divider::after {
+            content: "";
+            height: 1px;
+            width: 60px;
+            background: linear-gradient(to right, transparent, var(--color-border), transparent);
+        }
+        .divider i {
+            color: var(--color-gold);
+            margin: 0 15px;
+            font-size: 0.8rem;
+        }
+
+        /* 雙軌模式選擇按鈕 */
+        .mode-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .mode-card {
+            background: rgba(35, 30, 45, 0.6);
+            border: 1px solid #3a322a;
+            border-radius: 6px;
+            padding: 20px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+
+        .mode-card:hover {
+            border-color: var(--color-gold);
+            background: rgba(45, 38, 58, 0.8);
+            transform: translateY(-2px);
+        }
+
+        .mode-card.active {
+            border-color: var(--color-gold-bright);
+            background: rgba(197, 168, 128, 0.12);
+            box-shadow: 0 0 15px rgba(197, 168, 128, 0.2);
+        }
+
+        .mode-card i {
+            font-size: 1.8rem;
+            color: var(--color-gold);
+            margin-bottom: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .mode-card.active i {
+            color: var(--color-gold-bright);
+            transform: scale(1.1);
+        }
+
+        .mode-title {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 6px;
+            color: #fff;
+        }
+
+        .mode-desc {
+            font-size: 0.8rem;
+            color: #9e9282;
+            line-height: 1.4;
+        }
+
+        /* 內容動態切換區域 */
+        .config-content-wrapper {
+            min-height: 140px;
+            margin-bottom: 25px;
+        }
+
+        .config-panel {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .config-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 輸入框與標籤樣式 */
+        .input-group {
+            margin-top: 10px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--color-gold);
+            margin-bottom: 8px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 12px;
+            color: #615649;
+        }
+
+        .magic-input {
+            width: 100%;
+            background: #16131c;
+            border: 1px solid var(--color-border);
+            border-radius: 4px;
+            padding: 12px 12px 12px 38px;
+            color: #fff;
+            font-family: monospace;
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .magic-input:focus {
+            border-color: var(--color-gold);
+            box-shadow: 0 0 8px rgba(197, 168, 128, 0.15);
+        }
+
+        /* 環境狀態提示盒 */
+        .status-box {
+            border-radius: 4px;
+            padding: 15px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .status-box i {
+            font-size: 1.1rem;
+            margin-top: 2px;
+        }
+
+        .status-success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #34d399;
+        }
+
+        .status-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #f87171;
+        }
+
+        /* 命運啟動按鈕 */
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #a8895f 0%, #735a38 100%);
+            border: 1px solid var(--color-gold);
+            color: #fff;
+            padding: 14px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 2px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            background: linear-gradient(135deg, #bfa47a 0%, #8c6e46 100%);
+            box-shadow: 0 0 15px rgba(197, 168, 128, 0.4);
+            transform: scale(1.01);
+        }
+
+        .btn-submit:active:not(:disabled) {
+            transform: scale(0.99);
+        }
+
+        .btn-submit:disabled {
+            background: #2a2520;
+            border-color: #443c35;
+            color: #665f55;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="setup-container">
+        <div class="header-section">
+            <h1 class="game-title">MAGIC AWAKENED</h1>
+            <p class="game-subtitle">─ AI 動態敘事文字冒險 ─</p>
+            <div class="divider">
+                <i class="fa-solid : fa-wand-twirl-extension">✦</i>
+            </div>
+        </div>
+
+        <div class="mode-options">
+            <div class="mode-card active" id="mode-key-btn" onclick="switchMode('key')">
+                <i class="fa-solid fa-key"></i>
+                <div class="mode-title">自主串接模式</div>
+                <div class="mode-desc">自備 Gemini API 金鑰，解鎖最高速的客製化跑團體驗</div>
+            </div>
+            <div class="mode-card" id="mode-shell-btn" onclick="switchMode('shell')">
+                <i class="fa-solid fa-mobile-screen-button"></i>
+                <div class="mode-title">App 免費外殼</div>
+                <div class="mode-desc">透過專屬 Android 外殼安全登入，免金鑰即開即玩</div>
+            </div>
+        </div>
+
+        <div class="config-content-wrapper">
+            
+            <div class="config-panel active" id="panel-key">
+                <div class="input-group">
+                    <label class="input-label" for="api-key-input">請輸入您的 Google Gemini API Key :</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-bolt"></i>
+                        <input type="password" id="api-key-input" class="magic-input" placeholder="AIzaSy..." autocomplete="off">
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-panel" id="panel-shell">
+                <div id="shell-status" class="status-box">
+                    </div>
+            </div>
+
+        </div>
+
+        <button id="start-game-btn" class="btn-submit" onclick="confirmSetup()">
+            <span>開啟魔幻冒險</span>
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+
+    <script>
+        // 全局狀態變數
+        let currentMode = 'key'; 
+        let isCapacitorAvailable = false;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // 1. 初始化環境檢測
+            checkEnvironment();
+            // 2. 讀取 LocalStorage 中歷史保存的 API Key
+            const savedKey = localStorage.getItem('user_gemini_api_key');
+            if (savedKey) {
+                document.getElementById('api-key-input').value = savedKey;
+            }
+            // 3. 即時更新按鈕狀態
+            validateForm();
+            
+            // 監聽金鑰輸入框動態更變
+            document.getElementById('api-key-input').addEventListener('input', validateForm);
+        });
+
+        // 環境偵測核心邏輯
+        function checkEnvironment() {
+            // 檢查 window.Capacitor 是否存在
+            if (window.Capacitor || (window.parent && window.parent.Capacitor)) {
+                isCapacitorAvailable = true;
+            } else {
+                isCapacitorAvailable = false;
+            }
+            updateShellPanelUI();
+        }
+
+        // 動態渲染模式二(Shell)的 UI 狀態
+        function updateShellPanelUI() {
+            const statusBox = document.getElementById('shell-status');
+            if (isCapacitorAvailable) {
+                statusBox.className = "status-box status-success";
+                statusBox.innerHTML = `
+                    <i class="fa-solid fa-circle-check"></i>
+                    <div>
+                        <strong>App 運行環境偵測成功！</strong><br>
+                        隱藏外殼自動認證已就緒。系統將透過背景已持有的 Gemini 憑證自動進行對話與抓取。
+                    </div>
+                `;
+            } else {
+                statusBox.className = "status-box status-error";
+                statusBox.innerHTML = `
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <div>
+                        <strong>此模式僅限在專屬 Android App 內使用</strong><br>
+                        當前處於一般瀏覽器環境，無法讀取隱藏外殼憑證。請切換回「自主串接模式」或於手持 App 中開啟此畫面。
+                    </div>
+                `;
+            }
+        }
+
+        // 雙軌切換按鈕切換
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // 處理按鈕 Active 樣式
+            document.getElementById('mode-key-btn').classList.toggle('active', mode === 'key');
+            document.getElementById('mode-shell-btn').classList.toggle('active', mode === 'shell');
+            
+            // 處理面板顯示/隱藏
+            document.getElementById('panel-key').classList.toggle('active', mode === 'key');
+            document.getElementById('panel-shell').classList.toggle('active', mode === 'shell');
+            
+            // 切換時重新驗證表單可行性
+            validateForm();
+        }
+
+        // 檢查按鈕可用性（防呆機制）
+        function validateForm() {
+            const startBtn = document.getElementById('start-game-btn');
+            
+            if (currentMode === 'key') {
+                const keyValue = document.getElementById('api-key-input').value.trim();
+                // Gemini 金鑰通常以 AIzaSy 開頭，此處做基礎防呆
+                startBtn.disabled = (keyValue.length < 10);
+            } else if (currentMode === 'shell') {
+                // 如果是 App 模式，必須環境檢測通過才能點擊按鈕
+                startBtn.disabled = !isCapacitorAvailable;
+            }
+        }
+
+        // 玩家最終點擊「開啟魔幻冒險」觸發行為
+        function confirmSetup() {
+            if (currentMode === 'key') {
+                const apiKey = document.getElementById('api-key-input').value.trim();
+                // 儲存金鑰至本地快取
+                localStorage.setItem('user_gemini_api_key', apiKey);
+                
+                alert(`🧙‍♂️「自主串接模式」配置成功！\n金鑰已安全暫存至 LocalStorage。\n\n[系統提示] 前端準備發送 Fetch 至官方端點...`);
+                // 此處接後續進入遊戲畫面或生成角色的邏輯
+                
+            } else if (currentMode === 'shell') {
+                alert(`📱「App 免費外殼模式」啟動！\n環境驗證通過，正在透過 Web Message 連接背景外殼...\n\n[系統提示] 稍後會由後續追加的 JS Bridge 接手對話抓取機制。`);
+                // 此處接後續通知外殼或進入遊戲畫面的邏輯
+            }
+        }
+    </script>
+</body>
+</html>
