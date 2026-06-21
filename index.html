@@ -369,10 +369,10 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將喚醒登入視窗。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼認證已就緒。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼憑證。請使用「自主串接模式」。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong></div>`;
             }
         }
 
@@ -395,28 +395,13 @@
             }
         }
 
-        // 核心設定確認：切換畫面 (優化：加蓋台視窗自動回收與定時提示)
         async function confirmSetup() {
             if (currentMode === 'key') {
                 localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
-                alert("✨ API 金鑰設定成功，魔力連結已建立！");
                 handleSetupSuccess();
             } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
                 try {
-                    // 1. 喚醒原生外殼視窗開啟官方 Gemini 登入頁
                     await window.Capacitor.Plugins.Browser.open({ url: 'https://gemini.google.com' });
-                    
-                    // 2. 設定一個定時器，在 3.5 秒後彈出確認提示框（強制蓋在畫面上層）
-                    setTimeout(() => {
-                        const goBack = confirm("🔮 系統提示：\nApp 背景認證已發送！如果您已經在剛才的視窗中完成 Google 登入，請點擊「確認」回到魔法世界。");
-                        if (goBack) {
-                            // 3. 玩家按下確認，強行回收並關閉剛才彈出的 App 原生視窗
-                            window.Capacitor.Plugins.Browser.close();
-                            handleSetupSuccess();
-                        }
-                    }, 3500);
-
-                    // 備用安全網：如果玩家手動透過手勢關閉或滑掉視窗，也正常執行成功跳轉
                     window.Capacitor.Plugins.Browser.addListener('browserFinished', () => {
                         handleSetupSuccess();
                     });
@@ -433,7 +418,7 @@
             }
         }
 
-        /* Navbar 中央切換與動作分配機制 */
+        /* 核心優化：Navbar 中央切換與動作分配機制 */
         function changeStage(targetStage) {
             gameState = targetStage;
             
@@ -452,22 +437,26 @@
             if (targetStage === 'world_config') document.getElementById('stage-world-config').classList.add('active');
             if (targetStage === 'purchase_config') document.getElementById('stage-purchase-config').classList.add('active');
 
-            // 依據是否在主畫面(menu)，決定顯示「讀取存檔」還是「回到主畫面」
+            // 實作問題 1：依據是否在主畫面(menu)，決定顯示「讀取存檔」還是「回到主畫面」
             const navAction = document.getElementById('nav-dynamic-action');
             if (targetStage === 'menu') {
+                // 如果在主畫面：按鈕功能改為【讀取存檔】
                 navAction.innerHTML = `<i class="fa-solid fa-folder-open"></i> 讀取存檔`;
-                checkAndRenderSaveOptions(); 
+                checkAndRenderSaveOptions(); // 同步檢查使否有存檔決定是否暗淡
             } else {
+                // 如果已經在設定世界或玩到一半：按鈕功能改為【回到主畫面】
                 navAction.innerHTML = `<i class="fa-solid fa-house"></i> 回到主畫面`;
-                navAction.classList.remove('disabled'); 
+                navAction.classList.remove('disabled'); // 隨時可點選退回
             }
         }
 
         // navbar 動態點擊控制
         function handleNavbarAction() {
             if (gameState === 'menu') {
+                // 當前在主畫面，此時點擊等於「讀取存檔」
                 continueGame();
             } else {
+                // 當前不在主畫面，點擊等於安全退回「主畫面選單」
                 const leaveConfirm = confirm("🔮 是否要返回命運主選單？\n(未被鎖定的設定將不會被保存。)");
                 if (leaveConfirm) changeStage('menu');
             }
@@ -489,7 +478,7 @@
 
             if (isSaveValid) {
                 continueBtn.style.display = 'block';
-                navAction.classList.add('disabled'); 
+                navAction.classList.add('disabled'); // 已經幫你自動讀取好了，所以狀態列暗淡處理
             } else {
                 continueBtn.style.display = 'none';
                 navAction.classList.remove('disabled');
@@ -503,7 +492,7 @@
                 if (!confirmOverwrite) return;
                 localStorage.removeItem(SAVE_KEY);
             }
-            changeStage('world_config'); 
+            changeStage('world_config'); // 無舊存檔直接優雅跳過提示
         }
 
         function continueGame() {
@@ -524,13 +513,15 @@
         }
 
         function saveWorldConfigAndNext() {
+            // 世界線配置完畢，流暢進入下一步驟 2 頁面
             changeStage('purchase_config');
         }
 
-        // 步驟 2 邏輯：動態計算採買與快轉描述
+        // 步驟 2 邏輯：動態計算採買與快轉描述 (新增)
         function updatePurchaseRouteText() {
             const val = document.querySelector('input[name="purchase-mode"]:checked').value;
             const badge = document.getElementById('route-badge');
+            const descText = document.getElementById('matrix-desc-text');
             const routeDescText = document.getElementById('route-desc-text');
             
             purchaseRouteFlag = val;
@@ -553,6 +544,9 @@
             1. 世界線：【${worldLineConfig.code}】
             2. 入學路徑：【${purchaseRouteFlag === 'yes' ? '路徑甲：一條龍' : '路徑乙：快轉大禮堂'}】\n
             [系統提示] 前端已成功將此開局環境標籤存檔緩存。現在可以開始呼叫 AI 模組，真正生成你的小說篇章了！`);
+            
+            // 接下來可以串接真正的小說文本對話畫面元件
+            // proceedToTrueGameStoryView();
         }
 
         function navToAIConfig() {
