@@ -162,7 +162,7 @@
         /* ─── 階段五：全新小說敘事視窗樣式 ─── */
         .story-container { max-width: 700px; width: 94%; }
         .story-scroller { 
-            height: 280px; 
+            height: 320px; 
             overflow-y: auto; 
             margin-bottom: 20px; 
             padding-right: 8px; 
@@ -280,7 +280,7 @@
                 <i class="fa-solid fa-hourglass-start"></i> 繼續校園生活 (讀取自動存檔)
             </button>
             <button id="menu-new-btn" class="btn-submit btn-secondary" onclick="handleNewGame()">
-                <i class="fa-solid fa-book-sparkles"></i> 開始全新校園生活
+                <i class="fa-solid fa-book-sparkles"></i> 开始全新校園生活
             </button>
         </div>
     </div>
@@ -476,7 +476,6 @@
                 try {
                     const Browser = window.Capacitor.Plugins.Browser;
                     
-                    // 最新更新的引導對話框，擋住一切迷茫
                     alert("🔮 【AI 魔法外殼：節點同步指引】\n\n接下來將為您開啟 AI 驗證視窗。\n\n當您在畫面中看見 Gemini 對話框（例如顯示：XX，今天好嗎？）時，代表外殼已在背景完成同步！\n\n請直接點擊左上角的 [❌] 或手機返回鍵斬斷絲線，即可重返魔法校園編織命運。");
 
                     localStorage.setItem('ai_connection_mode', 'shell');
@@ -572,7 +571,7 @@
             const rawData = localStorage.getItem(SAVE_KEY);
             if (rawData) {
                 const confirmOverwrite = confirm("🔮 命運之書提示：\n檢測到既存的校園生活刻印。開始新遊戲將徹底抹除舊數據，是否確認重新編織？");
-                if (!overwriteConfirm) return; // 修正變數防錯
+                if (!confirmOverwrite) return; // ✅ 已修復：修正變數名稱不一致的 Bug
                 localStorage.removeItem(SAVE_KEY);
             }
             changeStage('world_config'); 
@@ -580,6 +579,7 @@
 
         function continueGame() {
             alert("📖 正在載入歷史刻印，重返霍格華茲...");
+            changeStage('story_view'); // ✅ 已修復：讓讀取存檔按鈕具有實質的切換效果
         }
 
         function updateWorldMatrix() {
@@ -619,19 +619,15 @@
         }
 
         function lockPurchaseConfigAndStart() {
-            // 提醒封裝確認後，直接呼叫切換至小說對話框
             proceedToTrueGameStoryView();
         }
 
-        // ─── 階段五：小說敘事視窗核心驅動 JS ───
         function proceedToTrueGameStoryView() {
             changeStage('story_view');
             
-            // 根據玩家先前的抉擇，動態調整小說介面的副標題標籤
             const routeName = (purchaseRouteFlag === 'yes') ? "路徑甲：斜角巷一條龍" : "路徑乙：極速大禮堂";
             document.getElementById('story-tag-badge').innerText = `矩陣：${worldLineConfig.code} ｜ 入學選定：${routeName}`;
             
-            // 模擬組織即將發送給 Gemini 的初始 System Prompt 暗號
             const initialPromptTemplate = `
                 [系統核心指令]
                 你現在是一部哈利波特同人小說的最高敘事AI。
@@ -642,20 +638,17 @@
             
             console.log("🔮 系統已成功為 AI 織路者封裝初始矩陣：", initialPromptTemplate);
             
-            // 執行小說打字機特效模擬
             simulateAiStoryGeneration();
         }
 
-        // 模擬 AI 小說文字逐字打印特效
         function simulateAiStoryGeneration() {
             const displayArea = document.getElementById('story-text-display');
             const optionsArea = document.getElementById('action-options-area');
-            displayArea.innerHTML = ""; // 清空
-            optionsArea.innerHTML = ""; // 清空選項
+            displayArea.innerHTML = ""; 
+            optionsArea.innerHTML = ""; 
             
             let simulatedNovelText = "";
             
-            // 根據分支，準備不同的小說開頭範本
             if (purchaseRouteFlag === 'yes') {
                 simulatedNovelText = `「記住，孩子，進入斜角巷的第一步，永遠要保持對未知的敬畏。」\n\n海格那高大如山的背影擋在你的身前，隨著他在破釜酒吧後院的牆磚上輕敲三下，原本緊實的磚牆開始神奇地扭曲、旋轉，最終化為一道寬闊的拱道。\n\n金屬敲擊聲、貓頭鷹的啼叫、以及坩堝散發的淡淡藥草香氣瞬間撲面而來。這裡就是斜角巷。陽光灑在鵝卵石鋪就的街道上，兩旁是琳瑯滿目的魔法商店。你摸了摸口袋裡的霍格華茲入學通知書，魔杖店、奧利凡德的招牌正在不遠處閃爍。\n\n你決定先去哪裡？`;
             } else {
@@ -663,29 +656,25 @@
             }
 
             let index = 0;
-            const speed = 40; // 打印速度 (毫秒/字)
+            const speed = 40; 
             
             function typeWriter() {
                 if (index < simulatedNovelText.length) {
                     displayArea.innerHTML += simulatedNovelText.charAt(index);
                     index++;
-                    // 自動滾動鎖定底部
                     document.getElementById('story-scroller').scrollTop = document.getElementById('story-scroller').scrollHeight;
                     setTimeout(typeWriter, speed);
                 } else {
-                    // 文字打印完畢後，渲染分支選項按鈕
                     renderSimulatedChoices();
                 }
             }
             
-            // 啟動打字機
             setTimeout(typeWriter, 500);
         }
 
-        // 模擬動態選項按鈕渲染
         function renderSimulatedChoices() {
             const optionsArea = document.getElementById('action-options-area');
-            optionsArea.innerHTML = ""; // 清空
+            optionsArea.innerHTML = ""; 
             
             let choices = [];
             if (purchaseRouteFlag === 'yes') {
