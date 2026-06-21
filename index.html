@@ -396,40 +396,52 @@
         }
 
         async function confirmSetup() {
-            if (currentMode === 'key') {
-                localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
+    if (currentMode === 'key') {
+        localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
+        handleSetupSuccess();
+    } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
+        try {
+            const Browser = window.Capacitor.Plugins.Browser;
+            
+            // 1. 在彈出視窗前，動態在我們「遊戲網頁」的最頂端塞入一個高顯眼的常駐提示列
+            // 這樣當 AI 視窗跳出來時（非全螢幕），這條提示會剛好露在螢幕最上方！
+            let topHint = document.createElement('div');
+            topHint.id = "shell-top-hint";
+            topHint.style = "position:fixed; top:0; left:0; width:100%; height:15vh; background:#1e1b26; color:#c5a880; border-bottom:2px solid #4a3f35; z-index:999999; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; padding:10px; font-size:0.9rem; line-height:1.4;";
+            topHint.innerHTML = "<div><i class='fa-solid fa-wand-sparkles' style='color:#f3e5ab;'></i> <strong>魔法外殼認證中</strong></div><div style='font-size:0.75rem; color:#9e9282; margin-top:4px;'>請在下方視窗登入 Gemini。完成後【點擊此處】或【向下滑動】即可返回遊戲</div>";
+            document.body.appendChild(topHint);
+
+            // 點擊提示列也可以主動幫玩家關閉視窗，雙重保險
+            topHint.onclick = async () => {
+                await Browser.close();
+            };
+
+            // 2. 開啟 Gemini 官方網頁
+            // 透過配置 toolbarColor 與 presentationStyle，限制它不要吞掉整個螢幕
+            await Browser.open({ 
+                url: 'https://gemini.google.com',
+                windowName: '_blank',
+                // 讓視窗具備質感的外殼色
+                toolbarColor: '#13101a', 
+                // 關鍵：在 iOS/Android 上嘗試以彈窗/抽屜型態顯現，允許底層內容露出
+                presentationStyle: 'popover' 
+            });
+            
+            // 3. 監聽關閉事件（玩家向下滑動關閉、按 X 關閉、或點擊上方提示列關閉）
+            Browser.addListener('browserFinished', () => {
+                // 移除常駐提示列
+                const hintEl = document.getElementById('shell-top-hint');
+                if (hintEl) hintEl.remove();
+                
+                // 無縫進入遊戲
                 handleSetupSuccess();
-            } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
-                try {
-                    const Browser = window.Capacitor.Plugins.Browser;
-                    
-                    // 1. 開啟 AI 視窗
-                    await Browser.open({ url: 'https://gemini.google.com' });
-                    
-                    // 2. 監聽視窗就緒或關閉狀態。
-                    // 提示：大部分手機此處可以用一個定時器或在監聽中主動引導
-                    Browser.addListener('browserFinished', () => {
-                        // 如果玩家手動關閉了，直接進入遊戲
-                        handleSetupSuccess();
-                    });
+            });
 
-                    // 為了達到您要的「連線上之後，提示玩家連線已完成，按下確認自動返回」
-                    // 我們可以利用一個小技巧：在開啟後 3 秒（預期已載入網頁並完成認證環境後）
-                    // 在底層觸發一個 OS 級別的 alert，它會彈出在最上層。
-                    setTimeout(() => {
-                        // 使用 window.alert 觸發 Android 原生對話框，這會強行浮現在最上層
-                        alert("🔮 AI 織路者連線已完成！\n點擊「確認」後將自動為您返回魔法校園。");
-                        
-                        // 玩家點完確認後，程式碼主動關閉 AI 原生視窗，完美退回遊戲前端
-                        Browser.close();
-                        handleSetupSuccess();
-                    }, 4000); // 4秒給予足夠的登入/讀取快取時間
-
-                } catch (err) { 
-                    alert("喚醒外部視窗失敗：" + err); 
-                }
-            }
+        } catch (err) { 
+            alert("喚醒外部視窗失敗：" + err); 
         }
+    }
+}
 
         // 新增一個符合魔法風格的自訂提示視窗，避免原生 alert 造成的體驗中斷
         function showCustomAlert(title, message, callback) {
