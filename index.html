@@ -40,7 +40,6 @@
             justify-content: center;
             align-items: center;
             overflow: hidden;
-            /* 優化：預留頂部 Navbar 高度，防止內容被遮擋 */
             padding-top: 60px; 
         }
 
@@ -60,7 +59,6 @@
             to { background-position: 1000px 1000px; }
         }
 
-        /* 頂部全域狀態列優化（僅留兩個按鈕區塊） */
         .global-navbar {
             position: fixed;
             top: 0; left: 0; width: 100%;
@@ -93,7 +91,6 @@
         .nav-item:hover:not(.disabled) { color: var(--color-gold-bright); }
         .nav-item.disabled { color: var(--color-disabled); cursor: not-allowed; pointer-events: none; }
 
-        /* 容器基本結構 */
         .game-stage {
             display: none;
             position: relative;
@@ -117,7 +114,6 @@
         .game-stage::before { top: 8px; left: 8px; border-right: none; border-bottom: none; }
         .game-stage::after { bottom: 8px; right: 8px; border-left: none; border-top: none; }
 
-        /* 標題與基礎樣式 */
         .header-section { text-align: center; margin-bottom: 25px; }
         .game-title { font-family: 'Cinzel', serif; font-size: 1.9rem; font-weight: 700; color: var(--color-gold-bright); letter-spacing: 3px; text-shadow: 0 0 12px rgba(243, 229, 171, 0.4); margin-bottom: 6px; }
         .game-subtitle { font-size: 0.9rem; color: #8c8275; letter-spacing: 1px; }
@@ -125,7 +121,6 @@
         .divider::before, .divider::after { content: ""; height: 1px; width: 60px; background: linear-gradient(to right, transparent, var(--color-border), transparent); }
         .divider i { color: var(--color-gold); margin: 0 15px; font-size: 0.8rem; }
 
-        /* 模式與自訂選擇區域 */
         .mode-options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 25px; }
         .mode-card { background: rgba(35, 30, 45, 0.6); border: 1px solid #3a322a; border-radius: 6px; padding: 18px 12px; text-align: center; cursor: pointer; transition: all 0.3s ease; }
         .mode-card:hover { border-color: var(--color-gold); background: rgba(45, 38, 58, 0.8); }
@@ -146,14 +141,12 @@
         .status-success { background: rgba(16, 185, 129, 0.1); border: 1px solid #10b981; color: #34d399; }
         .status-error { background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; color: #f87171; }
 
-        /* 按鈕樣式 */
         .btn-submit { width: 100%; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); border: 1px solid var(--color-gold); color: #fff; padding: 14px; font-size: 1.05rem; font-weight: 600; border-radius: 4px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); transition: all 0.3s; display: flex; justify-content: center; align-items: center; gap: 10px; letter-spacing: 2px; margin-bottom: 12px;}
         .btn-submit:hover:not(:disabled) { background: linear-gradient(135deg, #bfa47a 0%, #8c6e46 100%); box-shadow: 0 0 15px rgba(197, 168, 128, 0.4); }
         .btn-submit:disabled { background: #2a2520; border-color: #443c35; color: #665f55; cursor: not-allowed; box-shadow: none; }
         .btn-secondary { background: rgba(30, 25, 35, 0.8); border: 1px solid var(--color-border); color: var(--color-parchment); }
         .btn-secondary:hover:not(:disabled) { background: rgba(45, 38, 55, 0.9); border-color: var(--color-gold); color: #fff; }
 
-        /* 選擇元件排版 */
         .config-select-section { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
         .select-group { background: rgba(20, 15, 25, 0.6); border: 1px solid var(--color-border); padding: 15px; border-radius: 4px; }
         .select-title { font-size: 0.9rem; color: var(--color-gold-bright); margin-bottom: 10px; font-weight: 600; }
@@ -162,7 +155,6 @@
         .radio-label:hover { color: #fff; }
         .radio-label input { accent-color: var(--color-gold); }
 
-        /* 動態說明盒 */
         .matrix-result-box { background: rgba(40, 32, 54, 0.4); border: 1px dashed var(--color-gold); border-radius: 4px; padding: 15px; margin-bottom: 20px; }
         .matrix-badge { display: inline-block; background: linear-gradient(135deg, #a8895f 0%, #735a38 100%); color: #fff; padding: 2px 10px; border-radius: 3px; font-size: 0.75rem; font-weight: bold; font-family: monospace; margin-bottom: 8px; }
         .matrix-text { font-size: 0.85rem; line-height: 1.5; color: var(--color-parchment); }
@@ -330,12 +322,11 @@
     <script>
         let currentMode = 'key'; 
         let isCapacitorAvailable = false;
-        let gameState = 'setup'; // setup | menu | world_config | purchase_config
+        let gameState = 'setup'; 
         let prevGameState = 'setup'; 
         
-        // 全域記憶庫庫（準備給未來存檔或 AI Prompt 的最高規則變數）
         let worldLineConfig = { code: 'A1', timeline: 'A', npcScope: '1', narrativeLogic: '' };
-        let purchaseRouteFlag = 'yes'; // 'yes' (路徑甲) 或 'no' (路徑乙)
+        let purchaseRouteFlag = 'yes'; 
 
         const SAVE_KEY = 'rpg_game_save_data';
 
@@ -369,10 +360,10 @@
             const statusBox = document.getElementById('shell-status');
             if (isCapacitorAvailable) {
                 statusBox.className = "status-box status-success";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼認證已就緒。</div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-check"></i><div><strong>App 環境偵測成功！</strong><br>外殼自動認證已就緒。點擊按鈕將喚醒登入視窗。</div>`;
             } else {
                 statusBox.className = "status-box status-error";
-                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong></div>`;
+                statusBox.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i><div><strong>此模式僅限在專屬 Android App 內使用</strong><br>當前處於一般瀏覽器環境，無法調用外殼憑證。請使用「自主串接模式」。</div>`;
             }
         }
 
@@ -398,10 +389,20 @@
         async function confirmSetup() {
             if (currentMode === 'key') {
                 localStorage.setItem('user_gemini_api_key', document.getElementById('api-key-input').value.trim());
+                alert("✨ API 金鑰設定成功，魔力連結已建立！");
                 handleSetupSuccess();
             } else if (currentMode === 'shell' && window.Capacitor?.Plugins?.Browser) {
                 try {
                     await window.Capacitor.Plugins.Browser.open({ url: 'https://gemini.google.com' });
+                    
+                    setTimeout(() => {
+                        const goBack = confirm("🔮 系統提示：\nApp 背景認證已發送！如果您已經在剛才的視窗中完成 Google 登入，請點擊「確認」回到魔法世界。");
+                        if (goBack) {
+                            window.Capacitor.Plugins.Browser.close();
+                            handleSetupSuccess();
+                        }
+                    }, 3500);
+
                     window.Capacitor.Plugins.Browser.addListener('browserFinished', () => {
                         handleSetupSuccess();
                     });
@@ -418,17 +419,14 @@
             }
         }
 
-        /* 核心優化：Navbar 中央切換與動作分配機制 */
         function changeStage(targetStage) {
             gameState = targetStage;
             
-            // 隱藏所有階段
             document.getElementById('stage-setup').classList.remove('active');
             document.getElementById('stage-menu').classList.remove('active');
             document.getElementById('stage-world-config').classList.remove('active');
             document.getElementById('stage-purchase-config').classList.remove('active');
             
-            // 秀出目標階段
             if (targetStage === 'setup') document.getElementById('stage-setup').classList.add('active');
             if (targetStage === 'menu') {
                 document.getElementById('stage-menu').classList.add('active');
@@ -437,26 +435,20 @@
             if (targetStage === 'world_config') document.getElementById('stage-world-config').classList.add('active');
             if (targetStage === 'purchase_config') document.getElementById('stage-purchase-config').classList.add('active');
 
-            // 實作問題 1：依據是否在主畫面(menu)，決定顯示「讀取存檔」還是「回到主畫面」
             const navAction = document.getElementById('nav-dynamic-action');
             if (targetStage === 'menu') {
-                // 如果在主畫面：按鈕功能改為【讀取存檔】
                 navAction.innerHTML = `<i class="fa-solid fa-folder-open"></i> 讀取存檔`;
-                checkAndRenderSaveOptions(); // 同步檢查使否有存檔決定是否暗淡
+                checkAndRenderSaveOptions(); 
             } else {
-                // 如果已經在設定世界或玩到一半：按鈕功能改為【回到主畫面】
                 navAction.innerHTML = `<i class="fa-solid fa-house"></i> 回到主畫面`;
-                navAction.classList.remove('disabled'); // 隨時可點選退回
+                navAction.classList.remove('disabled'); 
             }
         }
 
-        // navbar 動態點擊控制
         function handleNavbarAction() {
             if (gameState === 'menu') {
-                // 當前在主畫面，此時點擊等於「讀取存檔」
                 continueGame();
             } else {
-                // 當前不在主畫面，點擊等於安全退回「主畫面選單」
                 const leaveConfirm = confirm("🔮 是否要返回命運主選單？\n(未被鎖定的設定將不會被保存。)");
                 if (leaveConfirm) changeStage('menu');
             }
@@ -478,7 +470,7 @@
 
             if (isSaveValid) {
                 continueBtn.style.display = 'block';
-                navAction.classList.add('disabled'); // 已經幫你自動讀取好了，所以狀態列暗淡處理
+                navAction.classList.add('disabled'); 
             } else {
                 continueBtn.style.display = 'none';
                 navAction.classList.remove('disabled');
@@ -492,14 +484,13 @@
                 if (!confirmOverwrite) return;
                 localStorage.removeItem(SAVE_KEY);
             }
-            changeStage('world_config'); // 無舊存檔直接優雅跳過提示
+            changeStage('world_config'); 
         }
 
         function continueGame() {
             alert("📖 正在載入歷史刻印，重返霍格華茲...");
         }
 
-        // 步驟 1 邏輯：動態計算世界線說明
         function updateWorldMatrix() {
             const timeline = document.querySelector('input[name="timeline-mode"]:checked').value;
             const npc = document.querySelector('input[name="npc-mode"]:checked').value;
@@ -513,15 +504,12 @@
         }
 
         function saveWorldConfigAndNext() {
-            // 世界線配置完畢，流暢進入下一步驟 2 頁面
             changeStage('purchase_config');
         }
 
-        // 步驟 2 邏輯：動態計算採買與快轉描述 (新增)
         function updatePurchaseRouteText() {
             const val = document.querySelector('input[name="purchase-mode"]:checked').value;
             const badge = document.getElementById('route-badge');
-            const descText = document.getElementById('matrix-desc-text');
             const routeDescText = document.getElementById('route-desc-text');
             
             purchaseRouteFlag = val;
@@ -544,9 +532,6 @@
             1. 世界線：【${worldLineConfig.code}】
             2. 入學路徑：【${purchaseRouteFlag === 'yes' ? '路徑甲：一條龍' : '路徑乙：快轉大禮堂'}】\n
             [系統提示] 前端已成功將此開局環境標籤存檔緩存。現在可以開始呼叫 AI 模組，真正生成你的小說篇章了！`);
-            
-            // 接下來可以串接真正的小說文本對話畫面元件
-            // proceedToTrueGameStoryView();
         }
 
         function navToAIConfig() {
